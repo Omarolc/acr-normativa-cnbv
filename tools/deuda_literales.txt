@@ -1,0 +1,8 @@
+# Deuda declarada de literales normativos en codigo Python.
+# Formato:  ruta/relativa.py | SPRINT_DE_VENCIMIENTO
+#
+# MECANISMO DE RATCHET: esta lista solo puede encoger. La compuerta D falla si
+# el sprint actual es posterior al de vencimiento de cualquier entrada.
+# Agregar una entrada nueva requiere justificacion explicita en la bitacora.
+
+src/acr/motor/capitalizacion.py | ACR-02

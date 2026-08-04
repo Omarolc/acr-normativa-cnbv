@@ -1,0 +1,36 @@
+name: CI — Seis compuertas
+
+on:
+  push: { branches: [main] }
+  pull_request: { branches: [main] }
+
+jobs:
+  compuertas:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+
+      - name: Instalar
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      - name: "Compuerta A — estilo (ruff)"
+        run: python -m ruff check .
+
+      - name: "Compuerta B — tipos (mypy --strict)"
+        run: python -m mypy --strict src
+
+      - name: "Compuerta C — pruebas (pytest)"
+        run: python -m pytest -q
+
+      - name: "Compuerta D — cero literales normativos"
+        run: python tools/gate_literales.py --sprint ACR-01
+
+      - name: "Compuerta E — reproducibilidad (hash identico)"
+        run: python tools/gate_reproducibilidad.py
+
+      - name: "Compuerta PII — sin datos de socios versionados"
+        run: python tools/gate_pii.py

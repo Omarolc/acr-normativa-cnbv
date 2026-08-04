@@ -1,0 +1,22 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+htmlcov/
+.coverage
+*.egg-info/
+dist/
+build/
+
+# DATOS REALES DE SOCIOS — nunca se versionan ni se suben al snapshot
+data/inputs/
+data/output/
+*.xlsx
+*.xls
+*.csv
+*.db
+*.sqlite
+resultado_*.txt
