@@ -1,0 +1,17 @@
+﻿{
+  "fecha_corte": "2026-06-30",
+  "capital_contable": 1000000,
+  "certificados_no_elegibles": 50000,
+  "financiamientos_partes_sociales": 0,
+  "cartera_vigente": 4500000,
+  "cartera_vencida": 500000,
+  "estimacion_preventiva": 260500,
+  "eeff_cumplen_reglas": true,
+  "eeff_en_plazo": true,
+  "historial_categorias": [],
+  "activos_totales": 18000000,
+  "valor_udi": "8.52",
+  "capital_social_pagado": 800000,
+  "relacionadas_dispuestos": 40000,
+  "relacionadas_lineas": 15000
+}

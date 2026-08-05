@@ -4,5 +4,6 @@
 # MECANISMO DE RATCHET: esta lista solo puede encoger. La compuerta D falla si
 # el sprint actual es posterior al de vencimiento de cualquier entrada.
 # Agregar una entrada nueva requiere justificacion explicita en la bitacora.
-
-src/acr/motor/capitalizacion.py | ACR-02
+#
+# ACR-02: deuda SALDADA. src/acr/motor/capitalizacion.py ya consume todos sus
+# parametros del registro normativo. La lista queda vacia y debe permanecer asi.

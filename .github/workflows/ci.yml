@@ -26,11 +26,17 @@ jobs:
       - name: "Compuerta C — pruebas (pytest)"
         run: python -m pytest -q
 
+      - name: "Compuerta C2 — cobertura 100% del motor"
+        run: python -m pytest -q --cov=acr.motor --cov=acr.entrada --cov-fail-under=100
+
       - name: "Compuerta D — cero literales normativos"
-        run: python tools/gate_literales.py --sprint ACR-01
+        run: python tools/gate_literales.py --sprint ACR-02
 
       - name: "Compuerta E — reproducibilidad (hash identico)"
         run: python tools/gate_reproducibilidad.py
+
+      - name: "Compuerta V — bloqueo por vigencia"
+        run: python tools/gate_vigencia.py
 
       - name: "Compuerta PII — sin datos de socios versionados"
         run: python tools/gate_pii.py

@@ -1,1 +1,4 @@
-"""Interfaz de linea de comandos. Se implementa en ACR-02."""
+"""Interfaz de línea de comandos."""
+from acr.cli.principal import main
+
+__all__ = ["main"]

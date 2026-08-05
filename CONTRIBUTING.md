@@ -42,7 +42,17 @@ Si el Anexo real no está cargado, el módulo se marca BLOQUEADO y falla. No se
 rellena con valores plausibles, ni con "ejemplos", ni con placeholders que
 devuelvan cumplimiento.
 
-## 7. Datos de socios
+## 7. Codificación de archivos
+
+Las ENTRADAS se leen con `utf-8-sig` a través de `acr.entrada`: Windows,
+PowerShell, el Bloc de notas y Excel escriben BOM, y son las herramientas con
+las que una cooperativa prepara sus insumos. Nunca `open()` ni `read_text()`
+directo sobre un archivo de insumo.
+
+Las SALIDAS se escriben sin BOM. El manifiesto del expediente compara hashes:
+un BOM cambiaría el hash del mismo contenido.
+
+## 8. Datos de socios
 
 Balanzas, carteras y padrones viven en `data/inputs/`, excluido de git y del
 snapshot. Las fixtures son sintéticas o anonimizadas. La compuerta PII detecta
@@ -54,7 +64,9 @@ RFC y CURP.
 python -m ruff check .
 python -m mypy --strict src
 python -m pytest -q
-python tools/gate_literales.py --sprint ACR-01
+python -m pytest -q --cov=acr.motor --cov=acr.entrada --cov-fail-under=100
+python tools/gate_literales.py --sprint ACR-02
 python tools/gate_reproducibilidad.py
+python tools/gate_vigencia.py
 python tools/gate_pii.py
 ```

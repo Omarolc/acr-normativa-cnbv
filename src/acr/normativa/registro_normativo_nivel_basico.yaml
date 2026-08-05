@@ -1,340 +1,507 @@
 # =============================================================================
 # REGISTRO NORMATIVO — SOCAP CON NIVEL DE OPERACIONES BÁSICO
 # =============================================================================
+# LA NORMA ES DATO. Ninguna constante regulatoria vive en un .py.
+#
 # Fuentes verificadas:
 #   - LRASCAP, última reforma DOF 14-11-2025
 #   - Disposiciones de carácter general aplicables a las actividades de las
 #     SOCAP, texto compilado al 07-07-2026
+#   - Anexo T     — Instructivo de información financiera (Nivel Básico)
+#   - Anexo U     — Instructivo de entrega de información (Nivel Básico)
+#   - Anexo C Bis — Calificación y estimaciones preventivas (Nivel Básico)
 #
-# PRINCIPIO DE ALCANCE (crítico):
-#   Disposiciones, Art. 1, fracc. LXVIII define "Sociedad" = SOCAP niveles I-IV.
+# PRINCIPIO DE ALCANCE:
+#   Disposiciones Art. 1, fracc. LXVIII define "Sociedad" = SOCAP niveles I-IV.
 #   Fracc. LXIX define por separado "SOCAP con Nivel de Operaciones Básico".
-#   => Todo artículo de las Disposiciones que diga "las Sociedades" NO aplica
-#      a Nivel Básico. Verificado: fuera del Título Primero Capítulo Único
-#      (Arts. 1 Bis a 1 Bis 7) no hay mención a Nivel Básico en el articulado.
+#   Todo artículo que diga "las Sociedades" NO aplica a Nivel Básico.
 # =============================================================================
 
 meta:
-  version_registro: "2026.08.01"
-  vigencia_desde: "2026-07-07"
+  version_registro: "2026.08.02"
+  # Vigencia NORMATIVA: periodo de fechas de corte que estos parámetros rigen.
+  vigencia_desde: "2026-01-01"
+  vigencia_hasta: "2026-12-31"
+  # Fuente DOCUMENTAL contra la que se verificaron los parámetros.
+  compilado_fuente: "2026-07-07"
   fecha_corte_conocimiento: "2026-08-04"
-  revisar_antes_de: "2027-01-01"   # ver bloque `alertas_vigencia`
+  nota_vigencia: >
+    Los parámetros de esta versión fueron verificados contra el texto compilado
+    de las Disposiciones al 07-07-2026 y contra los Anexos T, U y C Bis vigentes.
+    Para fechas de corte anteriores al 01-01-2026 debe cargarse un registro
+    histórico: el sistema NO extrapola parámetros hacia atrás. Para cortes a
+    partir del 01-01-2027 aplica la alerta bloqueante REF-2027-ANEXOS.
 
 # -----------------------------------------------------------------------------
 alertas_vigencia:
   - id: REF-2027-ANEXOS
     fecha_entrada_vigor: "2027-01-01"
+    bloqueante: true
     descripcion: >
-      Resolución DOF 09-04-2024 (con entrada en vigor diferida por Resolución
-      DOF 27-12-2025) sustituye los Anexos A, B, C, C Bis 1, E, F, J, M, Ñ, T y U,
-      y adiciona el Anexo C Bis 2. Afecta directamente el catálogo contable
-      (Anexo T) y los formatos de entrega (Anexo U) de Nivel Básico.
+      Resolución DOF 09-04-2024, con entrada en vigor diferida por Resolución
+      DOF 27-12-2025, sustituye los Anexos A, B, C, C Bis 1, E, F, J, M, Ñ, T y U
+      y adiciona el Anexo C Bis 2. Afecta el catálogo contable (Anexo T) y los
+      formatos de entrega (Anexo U) de Nivel Básico.
     accion: >
-      El motor debe rechazar la generación de reportes con fecha de corte
-      >= 2027-01-01 mientras este registro no incorpore los anexos sustituidos.
+      Rechazar la generación de cómputos con fecha de corte >= 2027-01-01
+      mientras este registro no incorpore los anexos sustituidos.
   - id: REF-2027-NIF
     fecha_entrada_vigor: "2027-01-01"
+    bloqueante: false
     descripcion: >
       NIF B-17, C-3, C-9, C-16, C-19, C-20, D-1, D-2 y D-5 referidas en el
       Criterio A-2 del Anexo E entran en vigor el 01-01-2027.
   - id: ANEXO-V-2026
     fecha_entrada_vigor: "2026-07-07"
+    bloqueante: false
     descripcion: >
       Resolución DOF 07-07-2026 adiciona el ANEXO V "Formatos para la remisión
-      de información a la CNBV". Pendiente de evaluar aplicabilidad a Básico.
+      de información a la CNBV". Pendiente evaluar aplicabilidad a Básico.
+  - id: ANEXO-T-REMISION-OBSOLETA
+    fecha_entrada_vigor: "2026-07-07"
+    bloqueante: false
+    descripcion: >
+      Los párrafos 39 y 98 del Anexo T remiten al "Anexo XX1" para el instructivo
+      de entrega. Esa remisión está desactualizada en el texto oficial: el
+      instructivo vigente es el Anexo U. Se registra para trazabilidad ante una
+      verificación del Comité de Supervisión Auxiliar.
 
 # -----------------------------------------------------------------------------
 ambito:
   entidad: "SOCAP con Nivel de Operaciones Básico"
+  supervisor_directo: "Comité de Supervisión Auxiliar (FOCOOP)"
+  fundamento_contraparte:
+    - "Disposiciones Art. 1 Bis 1"
+    - "Disposiciones Art. 1 Bis 6"
+    - "Disposiciones Art. 1 Bis 7"
+  nota_contraparte: >
+    La CNBV no es receptora directa de la información de Nivel Básico. El CSA
+    entrega a la CNBV la clasificación vía reporte A-2113 (Serie R21, Anexo M).
+    La cooperativa NO presenta el A-2113.
   criterio_pertenencia:
-    regla: "activos_totales <= 2500000 UDIS"
     fundamento: "LRASCAP Art. 13"
     condicion_adicional: >
       Solo se considera Nivel Básico la sociedad REGISTRADA conforme al Art. 7
-      LRASCAP. Sin registro (o cancelado) no tiene ese carácter.
-  supervisor_directo: "Comité de Supervisión Auxiliar (FOCOOP)"
-  nota_contraparte: >
-    La CNBV NO es receptora directa de la información de Nivel Básico.
-    El CSA entrega a la CNBV la clasificación vía reporte A-2113 (Serie R21,
-    Anexo M). La cooperativa NO presenta el A-2113.
-  fundamento_contraparte: ["Disposiciones Art. 1 Bis 1", "Art. 1 Bis 6", "Art. 1 Bis 7"]
+      LRASCAP. Sin registro, o con registro cancelado, no tiene ese carácter.
 
-# -----------------------------------------------------------------------------
-disparadores:
-  - id: EXCESO_LIMITE_ACTIVOS
-    condicion: "activos_totales > 2500000 UDIS"
-    fundamento: "LRASCAP Art. 16"
-    plazo_dias: 150
-    obligacion: >
-      Presentar al Comité de Supervisión Auxiliar la solicitud de autorización
-      para operar con nivel distinto al básico. Puede continuar operando hasta
-      que la Comisión resuelva, siempre que la solicitud lleve dictamen
-      favorable del CSA.
-    severidad: CRITICA
+# =============================================================================
+# PARÁMETROS — toda constante regulatoria del sistema vive aquí
+# =============================================================================
+parametros:
+  presentacion:
+    unidad: "miles de pesos"
+    fundamento: "Anexo U, formatos de balance general y estado de resultados"
+    decimales_porcentaje: 2
 
-# -----------------------------------------------------------------------------
-capitalizacion:
-  capital_neto:
-    fundamento: "Disposiciones Art. 1 Bis 4"
-    formula: "capital_contable - certificados_no_elegibles - financiamientos_para_partes_sociales"
-    componentes:
-      - id: capital_contable
-        signo: "+"
-      - id: certificados_no_elegibles
-        signo: "-"
-        descripcion: >
-          Certificados excedentes o voluntarios (Art. 51 Ley de Cooperativas)
-          que NO cumplen las características del Art. 1 Bis 5.
-      - id: financiamientos_para_partes_sociales
-        signo: "-"
-        descripcion: >
-          Financiamientos y aportaciones a título oneroso, incluidos accesorios,
-          cuyos recursos directa o indirectamente se destinen a adquirir partes
-          sociales o títulos del capital de la propia sociedad.
-    NO_restar:  # errores frecuentes tomados del régimen I-IV
-      - activos_intangibles
-      - creditos_a_contraventores
-
-  requerimiento:
-    fundamento: "Disposiciones Art. 1 Bis 3"
-    formula: "0.08 * cartera_creditos_neta_de_provisiones"
-    factor: 0.08
-
-  nivel_capitalizacion:
-    formula: "capital_neto / requerimiento * 100"
+  capitalizacion:
+    factor_requerimiento: "0.08"
+    fundamento_factor: "Disposiciones Art. 1 Bis 3"
     periodicidad_computo: trimestral
-    base: "saldos al último día del mes"
-    fundamento: "Disposiciones Art. 1 Bis 6"
-    casos_borde:
-      requerimiento_cero:
-        significado: "Sin cartera de crédito neta: no hay requerimiento que incumplir."
-        tratamiento: "cumplimiento_pleno"   # NO clasificar D
-      capital_neto_negativo:
-        tratamiento: "nivel = 0; categoría D"
+    meses_corte: [3, 6, 9, 12]
+    meses_entrega: [4, 7, 10, 1]
+    base_saldos: "saldos al día último del mes"
+    fundamento_computo: "Disposiciones Art. 1 Bis 6"
 
-  certificados_elegibilidad:
+  limite_activos:
+    valor_udis: "2500000"
+    fundamento: "LRASCAP Art. 13"
+    plazo_solicitud_dias: 150
+    fundamento_plazo: "LRASCAP Art. 16"
+
+  personas_relacionadas:
+    limite_pct_capital_contable: "10"
+    base_calculo: "montos dispuestos + líneas de crédito irrevocables contratadas"
+    umbral_exencion_udis: "100000"
+    umbral_exencion_factor_capital_social: "0.02"
+    regla_umbral: "el MENOR entre ambos"
+    quorum_aprobacion: "3/4 de los consejeros presentes en la sesión"
+    fundamento: "LRASCAP Art. 26"
+
+  certificados:
+    factor_maximo_ccp: "1.50"
+    base_ccp: "CCP a la fecha de emisión del certificado"
     fundamento: "Disposiciones Art. 1 Bis 5"
-    requisitos:
-      - id: programa_asamblea
-        descripcion: "Programa aprobado por Asamblea General con importe máximo y duración."
-      - id: plazo_definido
-        descripcion: "Plazo determinado por la Asamblea; liquidables al vencimiento salvo renovación automática con programa vigente."
-      - id: numerados_mismo_valor
-      - id: tasa_maxima
-        regla: "tasa_rendimiento <= 1.50 * CCP_a_fecha_de_emision"
-        nota: "El CCP es el de la FECHA DE EMISIÓN, no el vigente al corte. La tasa solo se paga si hay remanente en el ejercicio."
-      - id: terminos_pago
-        descripcion: "Término de pago, condiciones, forma de devolución, lugar y modo de pago."
-      - id: leyenda_no_deposito
-        texto_requerido: "Estos certificados son aportaciones al capital social de la Sociedad y no constituyen depósitos"
-      - id: leyenda_retiro
-        texto_requerido: "El tenedor de este certificado podrá solicitar el retiro del mismo, siempre y cuando dicho retiro no resulte en un incumplimiento a los requerimientos de capitalización que debe observar la Sociedad"
-    exencion:
-      descripcion: "Certificados de capital no retirable provenientes de programas gubernamentales quedan exentos de este artículo."
 
-# -----------------------------------------------------------------------------
+# =============================================================================
+# CAPITAL NETO — Disposiciones Art. 1 Bis 4 / formulario del Anexo U
+# =============================================================================
+capital_neto:
+  fundamento: "Disposiciones Art. 1 Bis 4"
+  formula: "capital_contable - certificados_no_elegibles - financiamientos_partes_sociales"
+  componentes:
+    - id: capital_contable
+      signo: "+"
+      renglon_anexo_u: 6
+      etiqueta: "Capital Contable"
+      fundamento: "Art. 1 Bis 4, fracc. I"
+    - id: certificados_no_elegibles
+      signo: "-"
+      renglon_anexo_u: 7
+      etiqueta: "Certificados excedentes o voluntarios que no cumplen con características"
+      fundamento: "Art. 1 Bis 4, fracc. II, remite a Art. 1 Bis 5"
+    - id: financiamientos_partes_sociales
+      signo: "-"
+      renglon_anexo_u: 8
+      etiqueta: "Financiamiento para adquisición de partes sociales"
+      fundamento: "Art. 1 Bis 4, fracc. III"
+  no_deducibles:
+    - concepto: activos_intangibles
+      motivo: "No previsto en el Art. 1 Bis 4. Es concepto del régimen de niveles I-IV."
+    - concepto: creditos_a_contraventores
+      motivo: "No previsto en el Art. 1 Bis 4."
+
+# =============================================================================
+# FORMULARIO DE CÓMPUTO — Anexo U, apartado II
+# =============================================================================
+formulario_computo_anexo_u:
+  fundamento: "Anexo U, apartado II. Requerimientos de capital"
+  renglones:
+    - numero: 1
+      etiqueta: "Cartera Vigente"
+      origen: insumo
+    - numero: 2
+      etiqueta: "Cartera Vencida"
+      origen: insumo
+    - numero: 3
+      etiqueta: "Estimación preventiva para riesgos crediticios"
+      origen: insumo
+    - numero: 4
+      etiqueta: "Total de cartera de crédito neta"
+      formula: "(1) + (2) - (3)"
+    - numero: 5
+      etiqueta: "Requerimientos de capitalización"
+      formula: "(4) * factor_requerimiento"
+    - numero: 6
+      etiqueta: "Capital Contable"
+      origen: insumo
+    - numero: 7
+      etiqueta: "Certificados excedentes o voluntarios que no cumplen con características"
+      origen: insumo
+    - numero: 8
+      etiqueta: "Financiamiento para adquisición de partes sociales"
+      origen: insumo
+    - numero: 9
+      etiqueta: "Capital neto"
+      formula: "(6) - (7) - (8)"
+    - numero: 10
+      etiqueta: "Nivel de capitalización"
+      formula: "[(9) / (5)] * 100"
+
+# =============================================================================
+# CLASIFICACIÓN — LRASCAP Art. 15
+# =============================================================================
 clasificacion:
   fundamento: "LRASCAP Art. 15"
   evaluador: "Comité de Supervisión Auxiliar"
   periodicidad_evaluacion: semestral
-  cifras_base: ["junio", "diciembre"]
-  publicacion: ["septiembre", "marzo"]
+  cifras_base: [6, 12]
   advertencia_implementacion: >
-    La categoría NO es función únicamente del porcentaje. Depende también del
+    La categoría no es función únicamente del porcentaje. Depende también del
     apego a las reglas de elaboración y presentación de estados financieros y
-    del historial de clasificaciones. Un motor puramente numérico clasifica mal.
-  categorias:
-    - id: A
-      nivel_min: 150
+    del historial de clasificaciones.
+  umbrales:
+    - categoria: A
+      nivel_min: "150"
       nivel_max: null
-      condiciones_adicionales: ["eeff_cumplen_reglas == true"]
+      fundamento: "LRASCAP Art. 15, fracc. I, inciso a)"
       riesgo: "bajo"
-    - id: B
-      nivel_min: 100
-      nivel_max: 150
-      condiciones_adicionales: ["eeff_cumplen_reglas == true"]
+    - categoria: B
+      nivel_min: "100"
+      nivel_max: "150"
+      fundamento: "LRASCAP Art. 15, fracc. I, inciso b)"
       riesgo: "moderadamente bajo"
-    - id: C
-      nivel_min: 50
-      nivel_max: 100
-      via_alterna:
-        descripcion: "También cae en C la sociedad con nivel >= 100 que NO se apega a las reglas de elaboración y presentación de EEFF."
-        condicion: "nivel >= 100 and eeff_cumplen_reglas == false"
+    - categoria: C
+      nivel_min: "50"
+      nivel_max: "100"
+      fundamento: "LRASCAP Art. 15, fracc. I, inciso c)"
       riesgo: "insolvencia si no adopta medidas correctivas inmediatas"
-    - id: D
-      nivel_max: 50
-      condicion_compuesta: >
-        nivel < 50 Y (no presentó EEFF en plazos/términos de las disposiciones
-        O —si estaba clasificada en C conforme al Art. 15-III— no los presentó
-        en la forma determinada).
-      efecto: >
-        Debe abstenerse de celebrar operaciones de captación e iniciar
-        disolución y liquidación. La abstención de captación surte a partir del
-        día siguiente a que surta efectos la notificación (Art. 15 Bis).
-  reglas_de_estado:
+    - categoria: D
+      nivel_min: null
+      nivel_max: "50"
+      fundamento: "LRASCAP Art. 15, fracc. I, inciso d)"
+      riesgo: "debe abstenerse de captación e iniciar disolución y liquidación"
+  hipotesis_adicionales:
+    - id: C_POR_PRESENTACION
+      resultado: C
+      fundamento: "LRASCAP Art. 15, fracc. I, inciso c), segunda hipótesis"
+      descripcion: >
+        También cae en C la sociedad que, con nivel suficiente, no se apega a las
+        reglas de elaboración y presentación de estados financieros básicos.
+    - id: D_REQUIERE_INCUMPLIMIENTO
+      resultado: D
+      fundamento: "LRASCAP Art. 15, fracc. I, inciso d)"
+      descripcion: >
+        Nivel bajo el umbral con estados financieros presentados en tiempo y
+        forma no cae automáticamente en D por la vía del inciso d).
     - id: DOS_C_CONSECUTIVAS
-      condicion: "categorias_previas[-2:] == ['C','C']"
-      resultado: "D"
-      fundamento: "LRASCAP Art. 15-III"
+      resultado: D
+      fundamento: "LRASCAP Art. 15, fracc. III"
       requiere_persistencia: true
-    - id: INCUMPLIMIENTO_RECURRENTE
-      descripcion: "El incumplimiento recurrente de obligaciones puede derivar en clasificación D."
-      fundamento: "LRASCAP Art. 15-III"
-      automatizable: false   # decisión del CSA, no del sistema
+      descripcion: "Dos clasificaciones consecutivas en categoría C derivan en D."
   notificacion_asamblea:
-    fundamento: "LRASCAP Art. 15-II"
+    fundamento: "LRASCAP Art. 15, fracc. II"
     regla_general: "Informar en la sesión de asamblea inmediata siguiente."
-    categoria_C_o_D: "A más tardar 30 días naturales desde el día siguiente a la notificación."
-    evidencia_al_CSA:
-      documentos: ["convocatoria", "acta protocolizada"]
-      plazo_dias: 60
-      desde: "celebración de la asamblea"
+    categorias_con_plazo: [C, D]
+    plazo_dias: 30
+    evidencia_al_csa_dias: 60
 
-# -----------------------------------------------------------------------------
+# =============================================================================
+# ANEXO C BIS — Estimaciones preventivas
+# =============================================================================
+estimaciones_preventivas:
+  fundamento: "Anexo C Bis de las Disposiciones"
+  titulo: >
+    Procedimiento para la calificación y constitución de estimaciones preventivas
+    de sociedades cooperativas de ahorro y préstamo con nivel de operaciones básico
+  periodicidad: mensual
+  base_cifras: "último día de cada mes calendario"
+  base_dias_mora: >
+    Número de días de retraso o mora transcurridos a partir del día de la primera
+    amortización del crédito que no haya sido cubierta por el acreditado a la
+    fecha de la calificación.
+  base_importe: >
+    Importe total de la cartera crediticia, incluyendo los intereses que genera.
+  exclusion: >
+    El monto sujeto a calificación no debe incluir los intereses devengados no
+    cobrados, registrados en balance, de créditos que estén en cartera vencida.
+  reduccion_dias_mora: >
+    Solo se pueden reconocer reducciones en los días de mora de créditos objeto de
+    reestructuración una vez que exista pago sostenido.
+  nota_critica: >
+    No existe estrato con 0%. Una cartera totalmente al corriente exige
+    estimaciones del 1% sobre su importe total incluidos intereses.
+  estratos:
+    - dias_min: 0
+      dias_max: 0
+      porcentaje: "1"
+    - dias_min: 1
+      dias_max: 7
+      porcentaje: "2"
+    - dias_min: 8
+      dias_max: 30
+      porcentaje: "10"
+    - dias_min: 31
+      dias_max: 60
+      porcentaje: "20"
+    - dias_min: 61
+      dias_max: 90
+      porcentaje: "40"
+    - dias_min: 91
+      dias_max: 120
+      porcentaje: "70"
+    - dias_min: 121
+      dias_max: 180
+      porcentaje: "85"
+    - dias_min: 181
+      dias_max: null
+      porcentaje: "100"
+
+# =============================================================================
+# ANEXO T — Traspaso a cartera vencida (párrafo 57) y pago sostenido
+# =============================================================================
+cartera_vencida:
+  fundamento: "Anexo T, párrafo 57"
+  regla_general: >
+    El saldo insoluto conforme a las condiciones de pago del contrato se registra
+    como cartera vencida al actualizarse cualquiera de los siguientes supuestos.
+  supuestos:
+    - id: PAGO_UNICO_PRINCIPAL_E_INTERESES
+      descripcion: "Pago único de principal e intereses al vencimiento"
+      dias_vencido_principal: 30
+      dias_vencido_intereses: null
+      amortizaciones_vencidas: null
+      periodos_facturacion_vencidos: null
+      fundamento: "Anexo T, párrafo 57, inciso a)"
+    - id: PAGO_UNICO_PRINCIPAL_INTERESES_PERIODICOS
+      descripcion: "Pago único de principal al vencimiento con pagos periódicos de intereses"
+      dias_vencido_principal: 30
+      dias_vencido_intereses: 90
+      amortizaciones_vencidas: null
+      periodos_facturacion_vencidos: null
+      fundamento: "Anexo T, párrafo 57, inciso b)"
+    - id: PAGOS_PERIODICOS_PARCIALES
+      descripcion: "Pagos periódicos parciales de principal e intereses"
+      dias_vencido_principal: 90
+      dias_vencido_intereses: null
+      amortizaciones_vencidas: null
+      periodos_facturacion_vencidos: null
+      fundamento: "Anexo T, párrafo 57, inciso c)"
+    - id: AMORTIZACIONES_PERIODICAS
+      descripcion: "Pagos semanales, quincenales o mensuales de principal e intereses"
+      dias_vencido_principal: null
+      dias_vencido_intereses: null
+      amortizaciones_vencidas: 3
+      periodos_facturacion_vencidos: null
+      fundamento: "Anexo T, párrafo 57, inciso d)"
+    - id: REVOLVENTE
+      descripcion: "Créditos revolventes"
+      dias_vencido_principal: 60
+      dias_vencido_intereses: null
+      amortizaciones_vencidas: null
+      periodos_facturacion_vencidos: 2
+      fundamento: "Anexo T, párrafo 57, inciso e)"
+
+pago_sostenido:
+  fundamento: "Anexo T, párrafos 48 a 50"
+  definicion: >
+    Cumplimiento de pago del acreditado sin retraso por el monto total exigible de
+    capital e intereses.
+  amortizaciones_consecutivas: 3
+  umbral_dias_periodo_largo: 60
+  exhibiciones_si_periodo_largo: 1
+  excluye_pago_anticipado: true
+
+reestructuras:
+  fundamento: "Anexo T, párrafos 58 a 61"
+  vencidos_permanecen_vencidos_sin_pago_sostenido: true
+  pago_unico_reestructurado_siempre_vencido: true
+  porcentaje_principal_exigible_cubierto: "0.25"
+
+estimacion_irrecuperabilidad:
+  fundamento: "Anexo T, párrafos 72 y 73"
+  aplica_a: "otras cuentas por cobrar distintas de cartera de crédito"
+  monto: "importe total del adeudo"
+  plazos:
+    - id: DEUDOR_NO_IDENTIFICADO
+      dias: 60
+    - id: DEUDOR_IDENTIFICADO
+      dias: 90
+
+# =============================================================================
+# ANEXO T / ANEXO U — Rubros de los estados financieros
+# =============================================================================
+rubros_balance:
+  fundamento: "Anexo T, párrafo 40; formato del Anexo U, apartado I"
+  activo:
+    - {id: efectivo, etiqueta: "EFECTIVO", signo: "+"}
+    - {id: cartera_vigente, etiqueta: "CARTERA DE CRÉDITO VIGENTE", signo: "+"}
+    - {id: cartera_vencida, etiqueta: "CARTERA DE CRÉDITO VENCIDA", signo: "+"}
+    - {id: estimacion_preventiva, etiqueta: "ESTIMACIÓN PREVENTIVA PARA RIESGOS CREDITICIOS", signo: "-"}
+    - {id: otras_cuentas_por_cobrar, etiqueta: "OTRAS CUENTAS POR COBRAR (NETO)", signo: "+"}
+    - {id: bienes_adjudicados, etiqueta: "BIENES ADJUDICADOS", signo: "+"}
+    - {id: inmuebles_mobiliario_equipo, etiqueta: "INMUEBLES, MOBILIARIO Y EQUIPO (NETO)", signo: "+"}
+    - {id: otros_activos, etiqueta: "OTROS ACTIVOS", signo: "+"}
+  pasivo:
+    - {id: depositos_exigibilidad_inmediata, etiqueta: "Depósitos de exigibilidad inmediata", signo: "+"}
+    - {id: depositos_a_plazo, etiqueta: "Depósitos a plazo", signo: "+"}
+    - {id: cuentas_sin_movimiento, etiqueta: "Cuentas sin movimiento", signo: "+"}
+    - {id: prestamos_corto_plazo, etiqueta: "Préstamos bancarios y de otros organismos, corto plazo", signo: "+"}
+    - {id: prestamos_largo_plazo, etiqueta: "Préstamos bancarios y de otros organismos, largo plazo", signo: "+"}
+    - {id: otras_cuentas_por_pagar, etiqueta: "OTRAS CUENTAS POR PAGAR", signo: "+"}
+  capital_contribuido:
+    - {id: certificados_aportacion_ordinarios, etiqueta: "Certificados de aportación ordinarios", signo: "+"}
+    - {id: certificados_excedentes_voluntarios, etiqueta: "Certificados excedentes o voluntarios", signo: "+"}
+    - {id: certificados_capital_riesgo, etiqueta: "Certificados para capital de riesgo", signo: "+"}
+  capital_ganado:
+    - {id: reservas_capital, etiqueta: "Reservas de capital", signo: "+"}
+    - {id: resultado_ejercicios_anteriores, etiqueta: "Resultado de ejercicios anteriores", signo: "+"}
+    - {id: resultado_neto_periodo, etiqueta: "Resultado neto del periodo", signo: "+"}
+  cuentas_de_orden:
+    - {id: compromisos_crediticios, etiqueta: "Compromisos crediticios", signo: "+"}
+    - {id: intereses_devengados_no_cobrados_vencida, etiqueta: "Intereses devengados no cobrados de cartera vencida", signo: "+"}
+    - {id: otras_cuentas_registro, etiqueta: "Otras cuentas de registro", signo: "+"}
+
+rubros_resultados:
+  fundamento: "Anexo T, párrafos 99 a 105; formato del Anexo U"
+  renglones:
+    - {id: ingresos_por_intereses, etiqueta: "Ingresos por intereses", signo: "+", subtotal: false}
+    - {id: gastos_por_intereses, etiqueta: "Gastos por intereses", signo: "-", subtotal: false}
+    - {id: resultado_financiero, etiqueta: "RESULTADO FINANCIERO", signo: "+", subtotal: true}
+    - {id: estimacion_preventiva, etiqueta: "Estimación preventiva para riesgos crediticios", signo: "-", subtotal: false}
+    - {id: resultado_financiero_ajustado, etiqueta: "RESULTADO FINANCIERO AJUSTADO POR RIESGOS CREDITICIOS", signo: "+", subtotal: true}
+    - {id: otros_ingresos_egresos, etiqueta: "Otros ingresos (egresos) de la operación", signo: "+", subtotal: false}
+    - {id: gastos_administracion_promocion, etiqueta: "Gastos de administración y promoción", signo: "-", subtotal: false}
+    - {id: resultado_neto, etiqueta: "RESULTADO NETO", signo: "+", subtotal: true}
+
+# =============================================================================
+# CERTIFICADOS EXCEDENTES O VOLUNTARIOS — Disposiciones Art. 1 Bis 5
+# =============================================================================
+certificados_elegibilidad:
+  fundamento: "Disposiciones Art. 1 Bis 5"
+  exencion: >
+    Los certificados de capital no retirable provenientes de programas
+    gubernamentales quedan exentos de este artículo.
+  requisitos:
+    - id: programa_asamblea
+      descripcion: "Programa aprobado por Asamblea General con importe máximo y duración."
+    - id: plazo_definido
+      descripcion: "Plazo determinado por la Asamblea; liquidables al vencimiento."
+    - id: numerados_mismo_valor
+      descripcion: "Numerados y del mismo valor."
+    - id: tasa_maxima
+      descripcion: "Rendimiento no superior al factor máximo del CCP a la fecha de emisión."
+    - id: terminos_pago
+      descripcion: "Término, condiciones, forma de devolución, lugar y modo de pago."
+    - id: leyenda_no_deposito
+      descripcion: "Leyenda de que son aportaciones al capital social y no constituyen depósitos."
+    - id: leyenda_retiro
+      descripcion: "Leyenda de retiro condicionado al cumplimiento de los requerimientos de capitalización."
+
+# =============================================================================
+# OBLIGACIONES DE ENTREGA
+# =============================================================================
 obligaciones_de_entrega:
   - id: OBL-AVISO-SUCURSALES
     fundamento: "Disposiciones Art. 1 Bis 1, párrafo 1"
     destinatario: "Socios (avisos en lugar visible de sucursales)"
-    contenido: ["balance general", "estado de resultados", "notas"]
-    cifras_a: ["marzo", "junio", "septiembre", "diciembre"]
-    entrega_en: ["abril", "julio", "octubre", "enero"]
-    medio: "cartel en sucursal"
-
+    meses_corte: [3, 6, 9, 12]
+    meses_entrega: [4, 7, 10, 1]
+    medio: cartel
   - id: OBL-TRIM-ELECTRONICA
     fundamento: "Disposiciones Art. 1 Bis 1, párrafo 2"
     destinatario: "Comité de Supervisión Auxiliar"
-    contenido: ["balance general", "estado de resultados"]
-    requisito_previo: "aprobados por el Consejo de Administración"
-    formato: "Anexo U — Instructivo de entrega de información"
-    cifras_a: ["marzo", "junio", "septiembre", "diciembre"]
-    entrega_en: ["abril", "julio", "octubre", "enero"]
-    medio: "electrónico"
-
+    meses_corte: [3, 6, 9, 12]
+    meses_entrega: [4, 7, 10, 1]
+    medio: electronico
   - id: OBL-SEM-IMPRESA
     fundamento: "Disposiciones Art. 1 Bis 1, párrafo 4"
     destinatario: "Comité de Supervisión Auxiliar"
-    contenido: ["balance general", "estado de resultados"]
-    formato: "Anexo U"
-    firmas_requeridas:
-      - "Presidente del Consejo de Administración"
-      - "Director o Gerente General"
-    cifras_a: ["junio", "diciembre"]
-    plazo: "dentro del mes inmediato siguiente a la fecha de corte"
-    medio: "impreso"
-
+    meses_corte: [6, 12]
+    meses_entrega: [7, 1]
+    medio: impreso
   - id: OBL-COMPUTO-CAPITALIZACION
     fundamento: "Disposiciones Art. 1 Bis 6"
     destinatario: "Comité de Supervisión Auxiliar"
-    contenido: ["cómputo del Nivel de Capitalización"]
-    formato: "formulario del Anexo U"
-    cifras_a: ["marzo", "junio", "septiembre", "diciembre"]
-    entrega_en: ["abril", "julio", "octubre", "enero"]
-    nota_valor_legal: >
-      El cómputo de la sociedad rige para todos los efectos legales, SALVO que
-      el CSA verifique y obtenga un cómputo distinto, el cual será definitivo.
-
+    meses_corte: [3, 6, 9, 12]
+    meses_entrega: [4, 7, 10, 1]
+    medio: electronico
+  - id: OBL-CALIFICACION-MENSUAL
+    fundamento: "Anexo C Bis"
+    destinatario: "Registro contable interno"
+    meses_corte: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+    meses_entrega: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+    medio: contable
   - id: OBL-INFORME-ANUAL-RELACIONADAS
     fundamento: "LRASCAP Art. 26"
-    destinatario: ["Asamblea General", "Consejo de Administración"]
-    contenido: "monto agregado de créditos a personas relacionadas e incumplimientos observados"
-    periodicidad: anual
+    destinatario: "Asamblea General y Consejo de Administración"
+    meses_corte: [12]
+    meses_entrega: [12]
+    medio: informe
 
-# NO es obligación de la cooperativa:
 no_son_entregables_de_la_sociedad:
   - id: A-2113
-    quien_lo_presenta: "Comité de Supervisión Auxiliar → CNBV"
+    quien_lo_presenta: "Comité de Supervisión Auxiliar hacia la CNBV"
     fundamento: "Disposiciones Art. 1 Bis 7 (Serie R21, Anexo M; Arts. 302 y 303)"
 
-# -----------------------------------------------------------------------------
-personas_relacionadas:
-  fundamento: "LRASCAP Art. 26"
-  aplica_a_basico: true
-  motivo_aplicabilidad: "Ubicado en Título Segundo, Capítulo III, Sección Tercera 'De las disposiciones comunes'."
-  aprobacion:
-    quorum: "3/4 de los consejeros PRESENTES en la sesión del Consejo de Administración"
-    nota: "Presentes, no del total de consejeros."
-  umbral_exencion_aprobacion:
-    regla: "min(100000 UDIS, 0.02 * capital_social_pagado)"
-    efecto: >
-      Por debajo del umbral no se requiere aprobación del Consejo, pero debe
-      hacerse de su conocimiento y ponerse la información agregada a disposición
-      de la Asamblea y del Consejo, sin precisar nombres.
-    limite_frecuencia: "Máximo una vez al año por persona relacionada sin aprobación."
-  limite_agregado:
-    regla: "(montos_dispuestos + lineas_de_credito_irrevocables_contratadas) <= 0.10 * capital_contable"
-    base: capital_contable   # no capital neto, no capital social
-  sujetos:
-    - "Miembros del Consejo de Administración, Consejo de Vigilancia y Comité de Crédito o equivalente"
-    - "Auditores externos"
-    - "Cónyuges y parientes de los anteriores (consanguinidad/afinidad en línea recta 1er grado; colateral 1er grado o civil)"
-    - "Funcionarios: director o gerente general y jerarquía inmediata inferior"
-    - "Personas que con su firma puedan obligar a la sociedad"
-  extension:
-    descripcion: >
-      También cuenta la operación realizada a través de cualquier persona o
-      fideicomiso cuando la contraparte y fuente de pago dependa de una
-      persona relacionada.
-  exclusiones:
-    - "Créditos de carácter laboral a trabajadores distintos de los sujetos listados."
-  condiciones:
-    - "No pueden celebrarse en términos más favorables que las operaciones de la misma naturaleza con Socios."
-    - "Consejeros y funcionarios con interés directo o conflicto deben excusarse y abstenerse de votar."
-
-# -----------------------------------------------------------------------------
-estimaciones_preventivas:
-  anexo_aplicable: "Anexo C Bis"
-  titulo_anexo: >
-    Procedimiento para la calificación y constitución de estimaciones preventivas
-    de sociedades cooperativas de ahorro y préstamo con nivel de operaciones básico
-  estado: PENDIENTE_DE_CARGA
-  nota: >
-    El texto del Anexo C Bis no está contenido en el PDF compilado de las
-    Disposiciones (solo aparece en el listado de anexos). Debe obtenerse el
-    anexo publicado en el DOF antes de implementar cualquier tabla de
-    porcentajes. NO usar el Anexo C (aplicable a niveles I-IV).
-  prohibido_hardcodear: true
-
-# -----------------------------------------------------------------------------
-formatos:
-  anexo_T:
-    titulo: "Instructivo de información financiera para SOCAP con Nivel de Operaciones Básico"
-    funcion: "criterios contables y catálogo de cuentas"
-    fundamento: "Disposiciones Art. 1 Bis"
-    estado: PENDIENTE_DE_CARGA
-  anexo_U:
-    titulo: "Instructivo de entrega de información para SOCAP con Nivel de Operaciones Básico"
-    funcion: "formatos de balance, estado de resultados y formulario de cómputo de capitalización"
-    fundamento: "Disposiciones Arts. 1 Bis 1 y 1 Bis 6"
-    estado: PENDIENTE_DE_CARGA
-  advertencia: >
-    T y U se confunden con frecuencia. El BALANCE QUE SE ENTREGA usa el formato
-    del Anexo U, no del T. El T rige cómo se lleva la contabilidad.
-
-# -----------------------------------------------------------------------------
-# Reglas que NO aplican a Nivel Básico (registradas para bloquear su reintroducción)
+# =============================================================================
+# REGLAS QUE NO APLICAN A NIVEL BÁSICO
+# =============================================================================
 excluidas_del_regimen_basico:
-  - regla: "Coeficiente de liquidez 10% de pasivos a corto plazo"
+  - regla: "Coeficiente de liquidez sobre pasivos a corto plazo"
     fundamento: "Disposiciones Art. 44"
     motivo: "Dirigido a 'las Sociedades' = niveles I-IV (Art. 1, fracc. LXVIII)"
   - regla: "Riesgo Común / diversificación de riesgos"
     fundamento: "Disposiciones Art. 193 Bis"
     motivo: "Mismo alcance I-IV"
-    nota_parametros_reales: >
-      Aun en I-IV el límite no es 20% plano: 10% del capital neto para Socios
-      personas físicas, 15% para personas morales, 20% para préstamos de
-      liquidez entre SOCAPs y para cooperativas del Art. 21 fracc. I y II LGSC.
-      Microcrédito Productivo: 12,000 UDIS individual / 20,000 UDIS por grupo
-      (máx. 2,500 UDIS por integrante), UDI a fecha de concertación.
   - regla: "Estimaciones preventivas conforme al Anexo C"
-    motivo: "Para Básico rige el Anexo C Bis"
+    fundamento: "Anexo C"
+    motivo: "Para Nivel Básico rige el Anexo C Bis"
   - regla: "Cuotas al Fondo de Protección"
     fundamento: "LRASCAP Art. 28, fracc. III, inciso c)"
     motivo: "La fracción III aplica exclusivamente a niveles I-IV"
-    nota: "El Art. 47 LRASCAP regula funciones del Comité Técnico, no cuotas."
   - regla: "Dictamen de auditor externo"
     fundamento: "LRASCAP Arts. 33 y 37"
     motivo: "Título Tercero, exclusivo de niveles I-IV"
-  - regla: "Leyenda de aprobación que cita Arts. 32, 34 y 40 LRASCAP y 'niveles I a IV'"
-    motivo: >
-      Esos artículos están en el Título Tercero (I-IV). Usar esa leyenda en un
-      balance de Nivel Básico es un error visible en el propio documento.
+  - regla: "Leyenda de aprobación que cita Arts. 32, 34 y 40 LRASCAP y niveles I a IV"
+    fundamento: "LRASCAP Título Tercero"
+    motivo: "Esos artículos no aplican a Nivel Básico"

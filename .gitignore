@@ -20,3 +20,6 @@ data/output/
 *.db
 *.sqlite
 resultado_*.txt
+
+# Instaladores de sprint: se descargan, no se versionan
+INSTALAR_ACR-*.ps1

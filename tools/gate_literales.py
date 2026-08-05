@@ -12,6 +12,13 @@ MECANISMO DE RATCHET: la lista de deuda solo puede encogerse. Cada entrada
 lleva el sprint en que vence. Si el sprint actual es posterior al de
 vencimiento, la compuerta falla aunque el archivo este en la lista.
 
+AMBITO: se escanea src/ y tools/. Las pruebas quedan FUERA por diseno, no por
+comodidad. En src/ un umbral literal ES comportamiento y esta prohibido. En
+tests/ un umbral literal es una afirmacion independiente de lo que dice la
+norma: si las pruebas de frontera leyeran los umbrales del mismo YAML que
+validan, pasarian aunque alguien corrompiera el registro. Las pruebas son el
+contrapeso al registro y por eso deben llevar los valores a mano.
+
 Uso:
     python tools/gate_literales.py                 # sprint actual desde el archivo
     python tools/gate_literales.py --sprint ACR-03
@@ -61,13 +68,21 @@ def leer_deuda() -> dict[str, str]:
     return deuda
 
 
+DIRECTORIOS_ESCANEADOS = ("src", "tools")
+EXCLUIR = {".venv", "venv", "__pycache__", ".git", "build", "dist"}
+
+
 def archivos_python() -> list[Path]:
-    excluir = {".venv", "venv", "__pycache__", ".git", "build", "dist"}
-    return [
-        p
-        for p in RAIZ.rglob("*.py")
-        if not excluir & set(p.relative_to(RAIZ).parts)
-    ]
+    """Solo codigo de produccion. Ver nota de AMBITO en el docstring del modulo."""
+    encontrados: list[Path] = []
+    for carpeta in DIRECTORIOS_ESCANEADOS:
+        base = RAIZ / carpeta
+        if not base.exists():
+            continue
+        encontrados.extend(
+            p for p in base.rglob("*.py") if not EXCLUIR & set(p.relative_to(RAIZ).parts)
+        )
+    return sorted(encontrados)
 
 
 def escanear(ruta: Path) -> list[tuple[int, str, str]]:
