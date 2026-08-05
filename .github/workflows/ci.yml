@@ -27,10 +27,10 @@ jobs:
         run: python -m pytest -q
 
       - name: "Compuerta C2 — cobertura 100% del motor"
-        run: python -m pytest -q --cov=acr.motor --cov=acr.entrada --cov-fail-under=100
+        run: python -m pytest -q --cov=acr.motor --cov=acr.entrada --cov=acr.persistencia --cov=acr.udis --cov-fail-under=100
 
       - name: "Compuerta D — cero literales normativos"
-        run: python tools/gate_literales.py --sprint ACR-02
+        run: python tools/gate_literales.py --sprint ACR-03
 
       - name: "Compuerta E — reproducibilidad (hash identico)"
         run: python tools/gate_reproducibilidad.py

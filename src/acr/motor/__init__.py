@@ -2,6 +2,14 @@
 
 Ningún otro módulo recalcula lo que aquí se calcula.
 """
+from acr.motor.calendario import (
+    DisparadorArt16,
+    EventoObligacion,
+    ObligacionDerivada,
+    evaluar_disparador_art16,
+    generar_agenda,
+    obligaciones_por_clasificacion,
+)
 from acr.motor.capitalizacion import (
     Capitalizacion,
     CapitalNeto,
@@ -44,12 +52,15 @@ __all__ = [
     "Clasificacion",
     "Credito",
     "CreditoCalificado",
+    "DisparadorArt16",
     "EsquemaPagosNoPrevistoError",
     "EstadoInconsistenteError",
     "EvaluacionCertificado",
+    "EventoObligacion",
     "InsumoCarteraFaltanteError",
     "InsumoFaltanteError",
     "LimiteActivos",
+    "ObligacionDerivada",
     "PersonasRelacionadas",
     "RequisitoDesconocidoError",
     "ResumenCartera",
@@ -63,7 +74,10 @@ __all__ = [
     "es_cartera_vencida",
     "evaluar_certificado",
     "evaluar_certificados",
+    "evaluar_disparador_art16",
     "evaluar_limite_activos",
     "evaluar_personas_relacionadas",
+    "generar_agenda",
+    "obligaciones_por_clasificacion",
     "porcentaje_estimacion",
 ]
