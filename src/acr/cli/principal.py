@@ -15,7 +15,9 @@ from decimal import Decimal
 from pathlib import Path
 from typing import Any
 
+from acr import __version__
 from acr.entrada import escribir_texto, leer_json
+from acr.expediente import generar_expediente
 from acr.motor import (
     calcular_capital_neto,
     calcular_capitalizacion,
@@ -176,6 +178,19 @@ def main(argv: list[str] | None = None) -> int:
     p_hist = sub.add_parser("historial", help="Historial de clasificaciones")
     p_hist.add_argument("--base", required=True, type=Path)
 
+    p_exp = sub.add_parser("expediente", help="Genera el expediente de auditoría")
+    p_exp.add_argument("--caso", required=True, type=Path)
+    p_exp.add_argument("--salida", required=True, type=Path)
+    p_exp.add_argument("--periodo", required=True)
+    p_exp.add_argument("--operador", required=True)
+    p_exp.add_argument(
+        "--fecha-generacion",
+        required=True,
+        help="AAAA-MM-DD. Explícita, nunca del reloj: el expediente debe ser reproducible.",
+    )
+    p_exp.add_argument("--commit", default="sin-commit")
+    p_exp.add_argument("--insumo", action="append", type=Path, default=None)
+
     args = parser.parse_args(argv)
 
     if args.comando == "registro":
@@ -197,7 +212,10 @@ def main(argv: list[str] | None = None) -> int:
     if args.comando == "historial":
         return _historial(args.base)
 
-    del p_calc, p_reg, p_ag, p_regi, p_hist
+    if args.comando == "expediente":
+        return _expediente(args)
+
+    del p_calc, p_reg, p_ag, p_regi, p_hist, p_exp
     caso = leer_json(args.caso)
     resultado = calcular(caso)
     texto = json.dumps(resultado, default=_serializar, sort_keys=True, ensure_ascii=False, indent=2)
@@ -300,4 +318,32 @@ def _historial(ruta_base: Path) -> int:
             print("\nINCUMPLIMIENTOS DEL ART. 26:")
             for fecha, pct in incumple:
                 print(f"  {fecha.isoformat()}  {pct}% del capital contable")
+    return 0
+
+
+def _expediente(args: argparse.Namespace) -> int:
+    reg = cargar_registro()
+    caso = leer_json(args.caso)
+    resultado = calcular(caso)
+    insumos = list(args.insumo) if args.insumo else [args.caso]
+
+    exp = generar_expediente(
+        reg=reg,
+        resultado=resultado,
+        destino=args.salida,
+        periodo=args.periodo,
+        fecha_generacion=date.fromisoformat(args.fecha_generacion),
+        operador=args.operador,
+        version_motor=__version__,
+        commit=args.commit,
+        sha256_registro=hash_registro(),
+        rutas_insumos=insumos,
+    )
+    print(f"Expediente generado: {exp.raiz}")
+    print(f"  categoria      : {exp.manifiesto['resultado']['categoria']}")
+    print(f"  insumos        : {len(exp.manifiesto['insumos'])}")
+    print(f"  bitacora       : {len(exp.bitacora)} entradas encadenadas")
+    print(f"  hash final     : {exp.bitacora[-1].hash}")
+    for ruta in exp.archivos:
+        print(f"    {ruta.relative_to(exp.raiz)}")
     return 0

@@ -64,8 +64,8 @@ RFC y CURP.
 python -m ruff check .
 python -m mypy --strict src
 python -m pytest -q
-python -m pytest -q --cov=acr.motor --cov=acr.entrada --cov=acr.persistencia --cov=acr.udis --cov-fail-under=100
-python tools/gate_literales.py --sprint ACR-03
+python -m pytest -q --cov=acr.motor --cov=acr.entrada --cov=acr.persistencia --cov=acr.udis --cov=acr.expediente --cov-fail-under=100
+python tools/gate_literales.py --sprint ACR-04
 python tools/gate_reproducibilidad.py
 python tools/gate_vigencia.py
 python tools/gate_pii.py

@@ -96,10 +96,34 @@ class ComponenteCapitalNeto(_Base):
     fundamento: str
 
 
+class ConceptoNoDeducible(_Base):
+    concepto: str
+    motivo: str
+
+
 class CapitalNetoSpec(_Base):
     fundamento: str
     formula: str
     componentes: list[ComponenteCapitalNeto]
+    no_deducibles: list[ConceptoNoDeducible]
+
+
+class RenglonFormulario(_Base):
+    numero: int
+    etiqueta: str
+    formula: str | None = None
+    origen: str | None = None
+
+
+class FormularioComputoSpec(_Base):
+    fundamento: str
+    renglones: list[RenglonFormulario]
+
+
+class ReglaExcluida(_Base):
+    regla: str
+    fundamento: str
+    motivo: str
 
 
 class UmbralCategoria(_Base):
@@ -232,6 +256,12 @@ class CertificadosSpec(_Base):
     requisitos: list[RequisitoCertificado]
 
 
+class Ambito(_Base):
+    entidad: str
+    supervisor_directo: str
+    nota_contraparte: str
+
+
 class Obligacion(_Base):
     id: str
     fundamento: str
@@ -246,11 +276,23 @@ class Registro(_Base):
 
     meta: Meta
     alertas_vigencia: list[AlertaVigencia]
+    ambito: Ambito
     parametros: Parametros
     capital_neto: CapitalNetoSpec
+    formulario_computo_anexo_u: FormularioComputoSpec
+    excluidas_del_regimen_basico: list[ReglaExcluida]
     clasificacion: ClasificacionSpec
     estimaciones_preventivas: EstimacionesSpec
     cartera_vencida: CarteraVencidaSpec
     pago_sostenido: PagoSostenidoSpec
     certificados_elegibilidad: CertificadosSpec
     obligaciones_de_entrega: list[Obligacion]
+
+    def formulario_computo_anexo_u_renglones(self) -> list[RenglonFormulario]:
+        return self.formulario_computo_anexo_u.renglones
+
+    def capital_neto_no_deducibles(self) -> list[ConceptoNoDeducible]:
+        return self.capital_neto.no_deducibles
+
+    def excluidas(self) -> list[ReglaExcluida]:
+        return self.excluidas_del_regimen_basico
