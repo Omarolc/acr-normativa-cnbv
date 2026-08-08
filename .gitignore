@@ -23,3 +23,7 @@ resultado_*.txt
 
 # Instaladores de sprint: se descargan, no se versionan
 INSTALAR_ACR-*.ps1
+
+pruebas_productos/
+
+*.zip
