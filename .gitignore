@@ -27,3 +27,5 @@ INSTALAR_ACR-*.ps1
 pruebas_productos/
 
 *.zip
+
+dashboard/acr_app/licencias_emitidas.jsonl
