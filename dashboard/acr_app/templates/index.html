@@ -127,6 +127,10 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
         <label>OPERADOR</label>
         <input type="text" id="operador" value="Omar Corona" placeholder="Nombre del operador">
       </div>
+      <div class="field" style="grid-column:1/-1">
+        <label>CLAVE DE LICENCIA DE PRUEBA (opcional — provista por Omar León Corona)</label>
+        <input type="text" id="licencia" placeholder="Deja vacío si no tienes clave de prueba" style="font-family:monospace;font-size:11px">
+      </div>
       <div class="field">
         <label>COOPERATIVA (opcional — se detecta del archivo)</label>
         <input type="text" id="nombre-manual" placeholder="Se extrae automáticamente">
@@ -439,10 +443,11 @@ function resetear() {
 function descargar(endpoint, ext, mime) {
   if (!datos) return;
   const {d,c,nombre,fecha_corte,operador} = datos;
+  const licencia = document.getElementById("licencia")?.value?.trim() || "";
   fetch(endpoint, {
     method:"POST",
     headers:{"Content-Type":"application/json"},
-    body: JSON.stringify({datos:d, calculo:c, nombre, fecha_corte, operador})
+    body: JSON.stringify({datos:d, calculo:c, nombre, fecha_corte, operador, licencia})
   })
   .then(r => r.blob())
   .then(blob => {

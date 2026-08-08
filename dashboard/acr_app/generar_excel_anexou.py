@@ -396,17 +396,35 @@ def hoja_cap(wb, d, c, nombre, fecha_corte):
     ws.row_dimensions[r].height=36
 
 # ── Función principal ──────────────────────────────────────────────────────────
-def generar_excel(d, c, nombre, fecha_corte, operador=""):
+def generar_excel(d, c, nombre, fecha_corte, operador="",
+                  es_prueba=False, titular_prueba=""):
     wb = openpyxl.Workbook()
-    wb.remove(wb.active)  # quitar hoja vacía por defecto
+    wb.remove(wb.active)
 
     hoja_balance(wb, d, c, nombre, fecha_corte)
     hoja_er(wb, d, c, nombre, fecha_corte)
     hoja_cap(wb, d, c, nombre, fecha_corte)
 
-    # Propiedades del workbook
-    wb.properties.title   = "Reporte Regulatorio Nivel Básico"
-    wb.properties.creator = operador or "ACR Normativa CNBV"
+    # Marca de agua en todas las hojas si es prueba
+    if es_prueba:
+        from openpyxl.styles import Font, PatternFill, Alignment
+        leyenda = (
+            f"⚠ REPORTE DE PRUEBA — Desarrollado por Omar León Corona © 2026 | "
+            f"Autorizado para: {titular_prueba} | No válido para entrega oficial al CSA"
+        )
+        for ws in wb.worksheets:
+            # Insertar fila 1 con la leyenda de prueba
+            ws.insert_rows(1)
+            cell = ws.cell(row=1, column=1, value=leyenda)
+            cell.font = Font(name="Arial", bold=True, size=9, color="00FFFFFF")
+            cell.fill = PatternFill("solid", fgColor="00990000")
+            cell.alignment = Alignment(horizontal="center", vertical="center", wrap_text=False)
+            ws.merge_cells(start_row=1, start_column=1, end_row=1, end_column=6)
+            ws.row_dimensions[1].height = 16
+
+    # Propiedades
+    wb.properties.title   = ("PRUEBA — " if es_prueba else "") + "Reporte Regulatorio Nivel Básico"
+    wb.properties.creator = "Omar León Corona — ACR Normativa CNBV"
     wb.properties.subject = "Anexo U — SOCAP Nivel de Operaciones Básico"
 
     buf = io.BytesIO()

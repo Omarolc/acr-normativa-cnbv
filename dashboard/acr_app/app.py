@@ -1,18 +1,17 @@
 """
 ACR Normativa CNBV — Dashboard Web
 SOCAP con Nivel de Operaciones Básico
-Flask + API REST + generador PDF Anexo U
+Flask + API REST + generador PDF/Excel Anexo U + sistema de licencias
 """
-import os, io, tempfile
+import os, io, textwrap
 from flask import Flask, request, jsonify, send_file, render_template
 from flask_cors import CORS
 import openpyxl
-from decimal import Decimal
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.units import cm
+from reportlab.lib.colors import Color
 from reportlab.pdfgen import canvas
 from reportlab.lib import colors
-import textwrap
 
 app = Flask(__name__)
 CORS(app)
@@ -69,18 +68,14 @@ def extraer(wb):
         for i, n in enumerate(nms):
             if any(p in n for p in pref): return wb.worksheets[i]
         return wb.worksheets[0]
-
     ws_bg = hoja(["BG","BALANCE","SITUACION","ACTIVO"])
     ws_er = hoja(["ED","ER","RESULTADO","RESULT"])
     rows_bg = [[c.value for c in r] for r in ws_bg.iter_rows()]
     rows_er = [[c.value for c in r] for r in ws_er.iter_rows()]
-
     d = {}
     for rubro, claves in CLAVES.items():
         rows = rows_er if rubro in ER_SET else rows_bg
         d[rubro] = buscar(rows, claves, absoluto=(rubro == "estimacion_prev"))
-
-    # Metadata
     nombre, fecha = "", ""
     for row in rows_bg[:10]:
         for cell in row:
@@ -101,7 +96,7 @@ def calcular(d):
     cat = ("A" if nc and nc >= 150 else "B" if nc and nc >= 100 else
            "C" if nc and nc >= 50  else "D" if nc is not None else "—")
     ta  = d["efectivo"] + cn + d["otras_cxc"] + d["bienes_adj"] + d["inmuebles"] + d["otros_activos"]
-    tp  = d["dep_exig_inm"] + d["dep_plazo"] + d["cuentas_sin_mov"] + d["prestamos_cp"] + d["prestamos_lp"] + d["otras_cxp"]
+    tp  = d["dep_exig_inm"]+d["dep_plazo"]+d["cuentas_sin_mov"]+d["prestamos_cp"]+d["prestamos_lp"]+d["otras_cxp"]
     rf  = d["ingresos_int"] - d["gastos_int"]
     rfaj= rf - d["est_riesgos_er"]
     rn  = rfaj + d["otros_ing"] - d["gastos_adm"]
@@ -117,15 +112,41 @@ def p(n):
     if n is None: return "—"
     return f"${abs(n):>14,.2f}" if n >= 0 else f"(${abs(n):>13,.2f})"
 
-def generar_pdf(d, c, nombre, fecha_corte, operador):
+def _marca_agua(cv):
+    """Marca de agua diagonal de prueba."""
+    cv.saveState()
+    cv.setFillColor(Color(0.7, 0.1, 0.1, alpha=0.09))
+    cv.setFont("Helvetica-Bold", 52)
+    cv.translate(W/2, H/2)
+    cv.rotate(42)
+    cv.drawCentredString(0, 40, "PRUEBA")
+    cv.drawCentredString(0, -60, "PRUEBA")
+    cv.restoreState()
+
+def _pie_prueba(cv, titular):
+    """Pie de página adicional para versiones de prueba."""
+    cv.saveState()
+    cv.setFont("Helvetica-Bold", 6.5)
+    cv.setFillColor(Color(0.6, 0.1, 0.1))
+    cv.drawCentredString(W/2, 0.7*cm,
+        f"REPORTE DE PRUEBA — Desarrollado por Omar León Corona © 2026 | "
+        f"Autorizado para: {titular} | No válido para entrega oficial")
+    cv.restoreState()
+
+def generar_pdf(d, c, nombre, fecha_corte, operador,
+                es_prueba=False, info_licencia=None):
     buf = io.BytesIO()
     cv = canvas.Canvas(buf, pagesize=letter)
-    cv.setTitle("Reporte Regulatorio — Nivel Básico")
-    cv.setAuthor(operador)
+    cv.setTitle("Reporte Regulatorio — Nivel Básico" + (" [PRUEBA]" if es_prueba else ""))
+    cv.setAuthor("Omar León Corona — ACR Normativa CNBV")
+
+    titular = info_licencia.get("titular","") if info_licencia else ""
 
     def encabezado(titulo, subtitulo):
         cv.setLineWidth(1.5)
         cv.line(1.5*cm, H-1.8*cm, W-1.5*cm, H-1.8*cm)
+        if es_prueba:
+            _marca_agua(cv)
         cv.setFont("Helvetica-Bold", 9)
         cv.drawCentredString(W/2, H-2.5*cm, nombre or "SOCIEDAD COOPERATIVA DE AHORRO Y PRÉSTAMO")
         cv.setFont("Helvetica-Bold", 10.5)
@@ -142,8 +163,11 @@ def generar_pdf(d, c, nombre, fecha_corte, operador):
         cv.line(1.5*cm, 1.6*cm, W-1.5*cm, 1.6*cm)
         cv.setFont("Helvetica", 7)
         cv.drawString(1.5*cm, 1.2*cm,
-            f"Art. 1 Bis 1 Disposiciones CNBV · Contraparte: Comité de Supervisión Auxiliar (FOCOOP) · Elaborado: {operador}")
+            f"Art. 1 Bis 1 Disposiciones CNBV · Contraparte: CSA (FOCOOP) · "
+            f"Desarrollado por Omar León Corona · Elaborado: {operador}")
         cv.drawRightString(W-1.5*cm, 1.2*cm, f"Corte: {fecha_corte}")
+        if es_prueba:
+            _pie_prueba(cv, titular)
 
     LX, RX, NL, NR = 1.8, 10.8, 10.3, 19.3
 
@@ -158,21 +182,21 @@ def generar_pdf(d, c, nombre, fecha_corte, operador):
     def sl(y): cv.line(LX*cm, y-1, NL*cm, y-1)
     def sr(y): cv.line(RX*cm, y-1, NR*cm, y-1)
 
-    # Página 1: Balance
+    # ── Página 1: Balance ─────────────────────────────────────────────────────
     encabezado(f"BALANCE GENERAL AL {fecha_corte.upper()}", "")
     cv.setLineWidth(0.35)
     y = H - 5.3*cm
     cv.setFont("Helvetica-Bold", 8.5)
     cv.drawString(LX*cm, y, "ACTIVO"); cv.drawString(RX*cm, y, "PASIVO Y CAPITAL")
     y -= .5*cm
-
+    cn = c["cn"]
     fila(y, "EFECTIVO", p(d["efectivo"]), "DEPÓSITOS", "", True, True); y -= .45*cm
     fila(y, "", "", "  Exigibilidad inmediata", p(d["dep_exig_inm"])); y -= .45*cm
     fila(y, "CARTERA DE CRÉDITO VIGENTE", p(d["cartera_vigente"]), "  A plazo", p(d["dep_plazo"]), True); y -= .45*cm
     fila(y, "CARTERA DE CRÉDITO VENCIDA", p(d["cartera_vencida"]), "  Sin movimiento", p(d["cuentas_sin_mov"]), True); y -= .45*cm
     sl(y); fila(y, "TOTAL CARTERA", p(d["cartera_vigente"]+d["cartera_vencida"]), "", "", True); sr(y); y -= .45*cm
     fila(y, "(−) ESTIMACIÓN PREVENTIVA", p(d["estimacion_prev"]), "PRÉSTAMOS BANCARIOS", "", True, True); y -= .45*cm
-    sl(y); fila(y, "CARTERA NETA", p(c["cn"]), "  Corto plazo", p(d["prestamos_cp"]), True); y -= .45*cm
+    sl(y); fila(y, "CARTERA NETA", p(cn), "  Corto plazo", p(d["prestamos_cp"]), True); y -= .45*cm
     fila(y, "OTRAS CxC (NETO)", p(d["otras_cxc"]), "  Largo plazo", p(d["prestamos_lp"])); y -= .45*cm
     sr(y); fila(y, "BIENES ADJUDICADOS", p(d["bienes_adj"]), "OTRAS CxP", p(d["otras_cxp"]), False, True); y -= .45*cm
     sr(y); fila(y, "INMUEBLES Y EQUIPO (NETO)", p(d["inmuebles"]), "TOTAL PASIVO", p(c["tp"]), False, True); y -= .45*cm
@@ -186,8 +210,6 @@ def generar_pdf(d, c, nombre, fecha_corte, operador):
     sr(y); fila(y, "", "", "TOTAL CAPITAL CONTABLE", p(c["cc"]), False, True); y -= .55*cm
     cv.setLineWidth(1.2); sl(y); sr(y); cv.setLineWidth(0.35)
     fila(y, "TOTAL ACTIVO", p(c["ta"]), "TOTAL PASIVO Y CAPITAL", p(c["tp"]+c["cc"]), True, True)
-
-    # Firmas
     y -= 1.8*cm
     cv.setLineWidth(0.5)
     cv.line(2*cm, y, 9*cm, y); cv.line(12*cm, y, 19.5*cm, y)
@@ -199,13 +221,12 @@ def generar_pdf(d, c, nombre, fecha_corte, operador):
     cv.drawCentredString(15.75*cm, y-.75*cm, "(entrega semestral impresa)")
     pie()
 
-    # Página 2: Estado de Resultados
+    # ── Página 2: Estado de Resultados ────────────────────────────────────────
     cv.showPage()
     encabezado("ESTADO DE RESULTADOS", f"DEL 1 DE ENERO AL {fecha_corte.upper()}")
     cv.setLineWidth(0.35)
     y = H - 5.5*cm
     LXe, NUMe = 3.0, 17.0
-
     def fer(y, con, val, bold=False, doble=False, sep=False):
         if sep:
             cv.setLineWidth(1.2 if doble else 0.4)
@@ -214,9 +235,7 @@ def generar_pdf(d, c, nombre, fecha_corte, operador):
         cv.setFont("Helvetica-Bold" if bold else "Helvetica", 9)
         cv.drawString(LXe*cm, y, con)
         if val is not None:
-            cv.setFont("Helvetica", 9)
-            cv.drawRightString(NUMe*cm, y, p(val))
-
+            cv.setFont("Helvetica", 9); cv.drawRightString(NUMe*cm, y, p(val))
     fer(y, "Ingresos por intereses", d["ingresos_int"]); y -= .55*cm
     fer(y, "Gastos por intereses", d["gastos_int"]); y -= .55*cm
     fer(y, "RESULTADO FINANCIERO", c["rf"], bold=True, sep=True); y -= .6*cm
@@ -236,7 +255,7 @@ def generar_pdf(d, c, nombre, fecha_corte, operador):
     cv.drawCentredString(15.75*cm, y-.75*cm, "(entrega semestral impresa)")
     pie()
 
-    # Página 3: Cómputo
+    # ── Página 3: Cómputo ─────────────────────────────────────────────────────
     cv.showPage()
     encabezado("CÓMPUTO DEL NIVEL DE CAPITALIZACIÓN",
                f"CIFRAS AL {fecha_corte.upper()} · Arts. 1 Bis 3, 1 Bis 4 y 1 Bis 6 Disposiciones CNBV")
@@ -249,7 +268,6 @@ def generar_pdf(d, c, nombre, fecha_corte, operador):
     y -= .3*cm
     cv.setLineWidth(0.8); cv.line(LXc*cm, y, NCR*cm, y); cv.setLineWidth(0.35)
     y -= .5*cm
-
     rengs = [
         ("(1)","Cartera Vigente",d["cartera_vigente"],"balanza",False,False),
         ("(2)","Cartera Vencida",d["cartera_vencida"],"balanza",False,False),
@@ -273,7 +291,6 @@ def generar_pdf(d, c, nombre, fecha_corte, operador):
         y -= .52*cm
         if num in ("(3)","(5)","(8)"):
             cv.line((LXc+0.7)*cm, y+.38*cm, NCR*cm, y+.38*cm)
-
     y -= .2*cm
     cv.setLineWidth(1.2); cv.line(LXc*cm, y+.3*cm, NCR*cm, y+.3*cm)
     cv.setLineWidth(0.4); cv.line(LXc*cm, y+.15*cm, NCR*cm, y+.15*cm)
@@ -284,7 +301,6 @@ def generar_pdf(d, c, nombre, fecha_corte, operador):
     cv.setFont("Helvetica", 9)
     cv.drawString(LXc*cm+9*cm, y-1*cm, f"Nivel: {c['nc']:.2f}%" if c['nc'] else "Nivel: —")
     cv.setFillColor(colors.black)
-
     y -= 1.8*cm
     obligaciones = {
         "A": ["Notificar la clasificación en la asamblea inmediata siguiente."],
@@ -295,17 +311,16 @@ def generar_pdf(d, c, nombre, fecha_corte, operador):
         "D": ["Abstenerse de operaciones de captación (Art. 15, fracc. IV).",
               "Iniciar disolución y liquidación.",
               "Notificar a la Asamblea en máximo 30 días (Art. 15, fracc. II)."],
-    }.get(cat, ["—"])
+    }.get(cat, [])
     cv.setFont("Helvetica-Bold", 8); cv.drawString(LXc*cm, y, "Obligaciones derivadas (Art. 15 LRASCAP):"); y -= .4*cm
     cv.setFont("Helvetica", 8)
     for ob in obligaciones:
         cv.drawString((LXc+0.3)*cm, y, f"• {ob}"); y -= .4*cm
-
     y -= .4*cm
     nota = ("La formulación y presentación de los estados financieros básicos es responsabilidad del "
-            "Consejo de Administración (Art. 1 Bis 1). El cómputo rige salvo que el Comité de Supervisión "
-            "Auxiliar, en ejercicio de sus facultades de verificación (Art. 1 Bis 6), obtenga un cómputo "
-            "distinto, en cuyo caso el del Comité será el definitivo.")
+            "Consejo de Administración (Art. 1 Bis 1). El cómputo rige salvo que el Comité de "
+            "Supervisión Auxiliar obtenga uno distinto (Art. 1 Bis 6). "
+            "Sistema desarrollado por Omar León Corona © 2026 — ACR Normativa CNBV.")
     cv.setFont("Helvetica", 7.5)
     for linea in textwrap.wrap(nota, 118):
         cv.drawString(LXc*cm, y, linea); y -= .35*cm
@@ -323,49 +338,109 @@ def index():
 def procesar():
     if "archivo" not in request.files:
         return jsonify({"error": "No se recibió archivo"}), 400
-    f = request.files["archivo"]
+    f       = request.files["archivo"]
     fecha   = request.form.get("fecha", "2026-06-30")
     operador= request.form.get("operador", "")
     try:
         wb = openpyxl.load_workbook(f, data_only=True)
         d, nombre, fecha_raw = extraer(wb)
         c = calcular(d)
-        return jsonify({
-            "nombre": nombre, "fecha_raw": fecha_raw,
-            "datos": d, "calculo": c,
-            "fecha_corte": fecha, "operador": operador,
-        })
+        return jsonify({"nombre": nombre, "fecha_raw": fecha_raw,
+                        "datos": d, "calculo": c,
+                        "fecha_corte": fecha, "operador": operador})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+def _resolver_licencia(data):
+    """Verifica la licencia del request y retorna (es_prueba, info_licencia, error_resp)."""
+    from licencias import (verificar_licencia, LicenciaInvalida,
+                           LicenciaExpirada, LicenciaAgotada, LicenciaRevocada)
+    clave = data.get("licencia", "").strip()
+    if not clave:
+        return False, None, None   # sin clave = modo libre (sin restricciones de prueba)
+    ip = request.remote_addr or ""
+    try:
+        info = verificar_licencia(clave, ip)
+        return True, info, None
+    except LicenciaRevocada as e:
+        return None, None, ({"error": str(e), "codigo": "REVOCADA"}, 403)
+    except LicenciaExpirada as e:
+        return None, None, ({"error": str(e), "codigo": "EXPIRADA"}, 403)
+    except LicenciaAgotada as e:
+        return None, None, ({"error": str(e), "codigo": "AGOTADA"}, 403)
+    except LicenciaInvalida as e:
+        return None, None, ({"error": str(e), "codigo": "INVALIDA"}, 401)
+
 @app.route("/api/pdf", methods=["POST"])
 def pdf():
-    data = request.json
-    d  = data["datos"]
-    c  = data["calculo"]
-    nombre  = data.get("nombre", "")
-    fecha   = data.get("fecha_corte", "2026-06-30")
-    operador= data.get("operador", "")
-    buf = generar_pdf(d, c, nombre, fecha, operador)
-    return send_file(buf, mimetype="application/pdf",
-                     as_attachment=True,
-                     download_name=f"AnexoU_{nombre[:20].replace(' ','_')}_{fecha}.pdf")
-
-if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port, debug=False)
-
-# ── Excel Anexo U ─────────────────────────────────────────────────────────────
-@app.route("/api/excel", methods=["POST"])
-def excel():
-    from generar_excel_anexou import generar_excel
     data     = request.json
+    es_prueba, info_lic, err = _resolver_licencia(data)
+    if err: return jsonify(err[0]), err[1]
     d        = data["datos"]
     c        = data["calculo"]
     nombre   = data.get("nombre", "")
     fecha    = data.get("fecha_corte", "2026-06-30")
     operador = data.get("operador", "")
-    buf = generar_excel(d, c, nombre, fecha, operador)
-    nombre_archivo = f"AnexoU_{(nombre or 'SOCAP')[:20].replace(' ','_')}_{fecha}.xlsx"
-    return send_file(buf, mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                     as_attachment=True, download_name=nombre_archivo)
+    buf = generar_pdf(d, c, nombre, fecha, operador,
+                      es_prueba=bool(es_prueba), info_licencia=info_lic)
+    sufijo = "_PRUEBA" if es_prueba else ""
+    return send_file(buf, mimetype="application/pdf", as_attachment=True,
+                     download_name=f"AnexoU_{nombre[:20].replace(' ','_')}_{fecha}{sufijo}.pdf")
+
+@app.route("/api/excel", methods=["POST"])
+def excel():
+    from generar_excel_anexou import generar_excel
+    data     = request.json
+    es_prueba, info_lic, err = _resolver_licencia(data)
+    if err: return jsonify(err[0]), err[1]
+    d        = data["datos"]
+    c        = data["calculo"]
+    nombre   = data.get("nombre", "")
+    fecha    = data.get("fecha_corte", "2026-06-30")
+    operador = data.get("operador", "")
+    titular  = info_lic.get("titular","") if info_lic else ""
+    buf = generar_excel(d, c, nombre, fecha, operador,
+                        es_prueba=bool(es_prueba), titular_prueba=titular)
+    sufijo = "_PRUEBA" if es_prueba else ""
+    return send_file(buf,
+                     mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                     as_attachment=True,
+                     download_name=f"AnexoU_{(nombre or 'SOCAP')[:20].replace(' ','_')}_{fecha}{sufijo}.xlsx")
+
+@app.route("/api/verificar-licencia", methods=["POST"])
+def verificar():
+    """Endpoint para que el front verifique la licencia antes de procesar."""
+    from licencias import (verificar_licencia, LicenciaInvalida,
+                           LicenciaExpirada, LicenciaAgotada, LicenciaRevocada)
+    clave = (request.json or {}).get("licencia", "").strip()
+    if not clave:
+        return jsonify({"valida": False, "error": "Clave vacía"}), 400
+    ip = request.remote_addr or ""
+    try:
+        # Solo verificar sin registrar uso (dry-run)
+        import hashlib, hmac as _hmac, json as _json, base64 as _b64
+        from datetime import date as _date
+        SECRET = os.environ.get("ACR_LICENSE_SECRET","")
+        partes = clave.strip().rsplit(".", 1)
+        payload_b64, firma_recibida = partes
+        padding = 4 - len(payload_b64) % 4
+        payload = _json.loads(_b64.urlsafe_b64decode(payload_b64 + "="*(padding%4)).decode())
+        firma_esperada = _hmac.new(SECRET.encode(), payload_b64.encode(), hashlib.sha256).hexdigest()[:16].upper()
+        if not _hmac.compare_digest(firma_recibida.upper(), firma_esperada):
+            return jsonify({"valida": False, "error": "Clave inválida"}), 401
+        expira = _date.fromisoformat(payload["expira"])
+        if _date.today() > expira:
+            return jsonify({"valida": False, "error": "Licencia expirada"}), 403
+        return jsonify({
+            "valida": True,
+            "titular": payload["titular"],
+            "expira": payload["expira"],
+            "max_usos": payload["max_usos"],
+            "id": payload["id"],
+        })
+    except Exception as e:
+        return jsonify({"valida": False, "error": str(e)}), 400
+
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port, debug=False)
