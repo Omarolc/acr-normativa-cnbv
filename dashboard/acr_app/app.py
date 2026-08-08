@@ -242,9 +242,9 @@ def generar_pdf(d, c, nombre, fecha_corte, operador):
                f"CIFRAS AL {fecha_corte.upper()} · Arts. 1 Bis 3, 1 Bis 4 y 1 Bis 6 Disposiciones CNBV")
     cv.setLineWidth(0.35)
     y = H - 5.5*cm
-    LXc, NCL, NCR = 2.5, 9.0, 19.0
-    cv.setFont("Helvetica-Bold", 8)
-    cv.drawString(LXc*cm, y, "#"); cv.drawString((LXc+0.8)*cm, y, "Concepto")
+    LXc, NCL, NCR = 1.3, 15.5, 20.3
+    cv.setFont("Helvetica-Bold", 7.5)
+    cv.drawString(LXc*cm, y, "#"); cv.drawString((LXc+0.7)*cm, y, "Concepto")
     cv.drawRightString(NCL*cm, y, "Fundamento"); cv.drawRightString(NCR*cm, y, "Importe")
     y -= .3*cm
     cv.setLineWidth(0.8); cv.line(LXc*cm, y, NCR*cm, y); cv.setLineWidth(0.35)
@@ -263,16 +263,16 @@ def generar_pdf(d, c, nombre, fecha_corte, operador):
         ("(10)","Nivel de capitalización  [(9)/(5)]×100",c["nc"],"Art. 1 Bis 6",True,True),
     ]
     for num, con, val, fund, bold, esNiv in rengs:
-        cv.setFont("Helvetica", 7.5); cv.drawString(LXc*cm, y, num)
-        cv.setFont("Helvetica-Bold" if bold else "Helvetica", 8)
-        cv.drawString((LXc+0.8)*cm, y, con)
-        cv.setFont("Helvetica", 7); cv.drawRightString(NCL*cm, y, fund)
-        cv.setFont("Helvetica-Bold" if bold else "Helvetica", 8)
+        cv.setFont("Helvetica", 7); cv.drawString(LXc*cm, y, num)
+        cv.setFont("Helvetica-Bold" if bold else "Helvetica", 7)
+        cv.drawString((LXc+0.7)*cm, y, con)
+        cv.setFont("Helvetica", 6.5); cv.drawRightString(NCL*cm, y, fund)
+        cv.setFont("Helvetica-Bold" if bold else "Helvetica", 7.5)
         txt = (f"{c['nc']:.2f}%" if c["nc"] is not None else "—") if esNiv else p(val)
         cv.drawRightString(NCR*cm, y, txt)
-        y -= .5*cm
+        y -= .52*cm
         if num in ("(3)","(5)","(8)"):
-            cv.line((LXc+0.8)*cm, y+.35*cm, NCR*cm, y+.35*cm)
+            cv.line((LXc+0.7)*cm, y+.38*cm, NCR*cm, y+.38*cm)
 
     y -= .2*cm
     cv.setLineWidth(1.2); cv.line(LXc*cm, y+.3*cm, NCR*cm, y+.3*cm)
@@ -354,3 +354,18 @@ def pdf():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=False)
+
+# ── Excel Anexo U ─────────────────────────────────────────────────────────────
+@app.route("/api/excel", methods=["POST"])
+def excel():
+    from generar_excel_anexou import generar_excel
+    data     = request.json
+    d        = data["datos"]
+    c        = data["calculo"]
+    nombre   = data.get("nombre", "")
+    fecha    = data.get("fecha_corte", "2026-06-30")
+    operador = data.get("operador", "")
+    buf = generar_excel(d, c, nombre, fecha, operador)
+    nombre_archivo = f"AnexoU_{(nombre or 'SOCAP')[:20].replace(' ','_')}_{fecha}.xlsx"
+    return send_file(buf, mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                     as_attachment=True, download_name=nombre_archivo)

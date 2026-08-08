@@ -51,6 +51,8 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 .btn:hover{background:var(--surface2)}
 .btn-pdf{background:var(--accent);color:#fff;border-color:var(--accent)}
 .btn-pdf:hover{background:#153d7a}
+.btn-excel{background:#1e6b31;color:#fff;border-color:#1e6b31}
+.btn-excel:hover{background:#154d23}
 .btns{display:flex;gap:8px}
 
 /* KPIs */
@@ -365,7 +367,8 @@ function renderResultado() {
       <div class="coop-meta">Corte: ${fecha_corte} · ${archivo}</div>
     </div>
     <div class="btns">
-      <button class="btn btn-pdf" onclick="descargarPDF()">⬇ Descargar PDF Anexo U</button>
+      <button class="btn btn-pdf" onclick="descargarPDF()">⬇ PDF Anexo U</button>
+      <button class="btn btn-excel" onclick="descargarExcel()">⬇ Excel Anexo U</button>
       <button class="btn" onclick="resetear()">Cargar otro archivo</button>
     </div>
   </div>
@@ -433,11 +436,10 @@ function resetear() {
   document.getElementById("drop").classList.remove("over");
 }
 
-function descargarPDF() {
+function descargar(endpoint, ext, mime) {
   if (!datos) return;
   const {d,c,nombre,fecha_corte,operador} = datos;
-  // Llama al backend para generar el PDF
-  fetch("/api/pdf", {
+  fetch(endpoint, {
     method:"POST",
     headers:{"Content-Type":"application/json"},
     body: JSON.stringify({datos:d, calculo:c, nombre, fecha_corte, operador})
@@ -446,11 +448,13 @@ function descargarPDF() {
   .then(blob => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
-    a.href=url; a.download=`AnexoU_${(nombre||"SOCAP").slice(0,20).replace(/ /g,"_")}_${fecha_corte}.pdf`;
+    a.href=url; a.download=`AnexoU_${(nombre||"SOCAP").slice(0,20).replace(/ /g,"_")}_${fecha_corte}.${ext}`;
     a.click(); URL.revokeObjectURL(url);
   })
-  .catch(() => alert("Error generando el PDF. Verifica que el servidor esté activo."));
+  .catch(() => alert(`Error generando el ${ext.toUpperCase()}. Verifica que el servidor esté activo.`));
 }
+function descargarPDF()   { descargar("/api/pdf",   "pdf",  "application/pdf"); }
+function descargarExcel() { descargar("/api/excel", "xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"); }
 </script>
 </body>
 </html>
