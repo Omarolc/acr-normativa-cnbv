@@ -3,70 +3,109 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ACR Normativa CNBV — Nivel Básico</title>
+<title>ACR Normativa CNBV</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 :root{
-  --bg:#f7f6f3; --surface:#ffffff; --surface2:#f1f0ed;
-  --border:rgba(0,0,0,.1); --border2:rgba(0,0,0,.18);
-  --text:#111; --muted:#666; --dim:#999;
-  --green:#1a7a1a; --amber:#7a5a00; --orange:#a04000; --red:#b00000;
-  --accent:#1a4fa0;
+  --bg:#f5f4f1; --surface:#ffffff; --surface2:#efefec;
+  --border:rgba(0,0,0,.09); --border2:rgba(0,0,0,.16);
+  --text:#0f0f0e; --muted:#5a5a56; --dim:#9a9a94;
+  --green:#1a6b1a; --amber:#7a5a00; --orange:#a04000; --red:#b00000;
+  --ink:#1a2340; --ink2:#2f4080;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);font-size:14px;min-height:100vh}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+/* ── LOGIN ── */
+#login-screen{
+  min-height:100vh;display:flex;align-items:center;justify-content:center;
+  background:var(--ink);
+}
+.login-box{
+  width:380px;padding:2.5rem 2rem;
+  background:rgba(255,255,255,.04);
+  border:0.5px solid rgba(255,255,255,.1);
+  border-radius:14px;
+}
+.login-logo{font-size:10px;letter-spacing:.18em;color:rgba(255,255,255,.4);margin-bottom:.5rem;font-weight:600}
+.login-title{font-size:26px;font-weight:700;color:#fff;letter-spacing:-.03em;margin-bottom:.3rem}
+.login-sub{font-size:12px;color:rgba(255,255,255,.4);margin-bottom:2rem;line-height:1.5}
+.login-label{font-size:10px;font-weight:600;letter-spacing:.08em;color:rgba(255,255,255,.5);margin-bottom:.4rem;display:block}
+.login-input{
+  width:100%;padding:10px 14px;background:rgba(255,255,255,.07);
+  border:0.5px solid rgba(255,255,255,.15);border-radius:7px;
+  color:#fff;font-size:13px;font-family:monospace;outline:none;
+  transition:border .15s;margin-bottom:1rem;
+}
+.login-input:focus{border-color:rgba(255,255,255,.4)}
+.login-input::placeholder{color:rgba(255,255,255,.25);font-family:system-ui}
+.login-btn{
+  width:100%;padding:11px;background:rgba(255,255,255,.12);
+  border:0.5px solid rgba(255,255,255,.2);border-radius:7px;
+  color:#fff;font-size:13px;font-weight:600;cursor:pointer;
+  transition:background .15s;letter-spacing:.02em;
+}
+.login-btn:hover{background:rgba(255,255,255,.2)}
+.login-error{color:#ff8080;font-size:12px;margin-top:.6rem;min-height:18px;text-align:center}
+.login-footer{margin-top:2rem;font-size:10px;color:rgba(255,255,255,.2);text-align:center;line-height:1.6}
+
+/* ── APP ── */
+#app-screen{display:none}
 .shell{max-width:980px;margin:0 auto;padding:1.5rem 1rem 3rem}
-
-/* Header */
-.hdr{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:2.5px solid var(--text);padding-bottom:.8rem;margin-bottom:1.5rem}
-.hdr-l .eyebrow{font-size:9px;letter-spacing:.14em;color:var(--muted);margin-bottom:4px;font-weight:600}
-.hdr-l .title{font-size:22px;font-weight:700;letter-spacing:-.03em;line-height:1}
-.hdr-l .sub{font-size:11px;color:var(--muted);margin-top:4px}
+.hdr{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:2px solid var(--text);padding-bottom:.7rem;margin-bottom:1.4rem}
+.hdr-l .eyebrow{font-size:9px;letter-spacing:.14em;color:var(--muted);margin-bottom:3px;font-weight:600}
+.hdr-l .title{font-size:21px;font-weight:700;letter-spacing:-.03em}
+.hdr-l .sub{font-size:11px;color:var(--muted);margin-top:2px}
 .hdr-r{font-size:10px;color:var(--dim);text-align:right;line-height:1.8}
+.user-bar{display:flex;align-items:center;gap:10px;padding:8px 14px;background:var(--surface);border-radius:8px;border:0.5px solid var(--border2);margin-bottom:16px;font-size:12px}
+.user-bar .badge{background:var(--ink);color:#fff;font-size:9px;font-weight:600;padding:2px 8px;border-radius:4px;letter-spacing:.06em}
+.user-bar .badge-prueba{background:var(--orange)}
+.user-bar .titular{font-weight:500;flex:1}
+.user-bar .usos{font-size:11px;color:var(--muted)}
+.user-bar .logout{font-size:11px;color:var(--dim);cursor:pointer;text-decoration:underline}
 
-/* Formulario de carga */
-.form-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px}
-.field label{display:block;font-size:10px;font-weight:600;letter-spacing:.06em;color:var(--muted);margin-bottom:4px}
-.field input{width:100%;padding:8px 10px;border:0.5px solid var(--border2);border-radius:6px;background:var(--surface);font-size:12px;color:var(--text);outline:none;transition:border .15s}
-.field input:focus{border-color:var(--accent)}
+/* Panel maestro */
+.panel-maestro{background:var(--ink);border-radius:10px;padding:1.2rem 1.4rem;margin-bottom:18px;color:#fff}
+.panel-maestro .pm-title{font-size:11px;font-weight:600;letter-spacing:.08em;margin-bottom:1rem;opacity:.6}
+.pm-form{display:grid;grid-template-columns:1fr 1fr auto auto auto;gap:8px;align-items:end}
+.pm-field label{font-size:9px;font-weight:600;letter-spacing:.06em;color:rgba(255,255,255,.5);display:block;margin-bottom:3px}
+.pm-field input{width:100%;padding:7px 10px;background:rgba(255,255,255,.08);border:0.5px solid rgba(255,255,255,.15);border-radius:6px;color:#fff;font-size:12px;outline:none}
+.pm-field input::placeholder{color:rgba(255,255,255,.25)}
+.pm-btn{padding:7px 16px;background:rgba(255,255,255,.14);border:0.5px solid rgba(255,255,255,.2);border-radius:6px;color:#fff;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap}
+.pm-btn:hover{background:rgba(255,255,255,.22)}
+.clave-resultado{margin-top:10px;padding:10px 12px;background:rgba(255,255,255,.06);border-radius:6px;font-size:11px;display:none}
+.clave-resultado .clave-txt{font-family:monospace;font-size:10px;word-break:break-all;color:rgba(255,255,255,.8);margin-top:4px}
+.clave-resultado .clave-meta{color:rgba(255,255,255,.4);margin-bottom:4px}
 
-/* Dropzone */
+/* Form carga */
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.field label{font-size:10px;font-weight:600;letter-spacing:.06em;color:var(--muted);margin-bottom:4px;display:block}
+.field input{width:100%;padding:8px 10px;border:0.5px solid var(--border2);border-radius:6px;background:var(--surface);font-size:12px;color:var(--text);outline:none}
 .drop{border:1.5px dashed var(--border2);border-radius:10px;padding:2rem 1rem;text-align:center;cursor:pointer;background:var(--surface);transition:all .15s;margin-bottom:12px;position:relative}
-.drop:hover,.drop.over{border-color:var(--accent);background:#f0f4ff}
-.drop-icon{font-size:40px;margin-bottom:.5rem;line-height:1}
-.drop-title{font-size:15px;font-weight:600;margin-bottom:.3rem}
+.drop:hover,.drop.over{border-color:var(--ink);background:#f0f2f8}
+.drop-icon{font-size:38px;margin-bottom:.5rem;line-height:1}
+.drop-title{font-size:14px;font-weight:600;margin-bottom:.3rem}
 .drop-sub{font-size:11px;color:var(--muted)}
 .drop input{position:absolute;inset:0;opacity:0;cursor:pointer}
 
-/* Loader */
-.loader{display:none;text-align:center;padding:2rem;font-size:13px;color:var(--muted)}
-.spinner{width:28px;height:28px;border:3px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 10px}
-@keyframes spin{to{transform:rotate(360deg)}}
-
-/* Coop bar */
+/* Resultado */
 .coop-bar{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:var(--surface);border-radius:8px;border:0.5px solid var(--border2);margin-bottom:14px}
 .coop-name{font-weight:700;font-size:14px}
 .coop-meta{font-size:10px;color:var(--muted);margin-top:2px}
+.btns{display:flex;gap:8px}
 .btn{padding:7px 16px;font-size:11px;border-radius:6px;border:0.5px solid var(--border2);cursor:pointer;background:var(--surface);color:var(--text);font-weight:500;transition:background .15s}
 .btn:hover{background:var(--surface2)}
-.btn-pdf{background:var(--accent);color:#fff;border-color:var(--accent)}
-.btn-pdf:hover{background:#153d7a}
+.btn-pdf{background:var(--ink);color:#fff;border-color:var(--ink)}
+.btn-pdf:hover{background:var(--ink2)}
 .btn-excel{background:#1e6b31;color:#fff;border-color:#1e6b31}
 .btn-excel:hover{background:#154d23}
-.btns{display:flex;gap:8px}
-
-/* KPIs */
+.btn-ghost{background:transparent;border-color:var(--border);color:var(--muted)}
 .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px}
-.kpi{background:var(--surface);border-radius:9px;padding:12px 14px;border:0.5px solid var(--border)}
+.kpi{background:var(--surface);border-radius:9px;padding:11px 13px;border:0.5px solid var(--border)}
 .kpi-lbl{font-size:9px;letter-spacing:.08em;font-weight:600;color:var(--muted);margin-bottom:4px}
-.kpi-val{font-size:22px;font-weight:700;line-height:1;letter-spacing:-.02em}
+.kpi-val{font-size:21px;font-weight:700;line-height:1}
 .kpi-sub{font-size:9px;color:var(--dim);margin-top:3px}
-.kpi-cat .kpi-val{font-size:32px}
-
-/* Sección */
 .sec{font-size:9px;letter-spacing:.1em;font-weight:700;color:var(--muted);margin:.9rem 0 .5rem;border-bottom:0.5px solid var(--border);padding-bottom:.3rem}
-
-/* Tabla */
 .tbl{border:0.5px solid var(--border);border-radius:8px;overflow:hidden;background:var(--surface)}
 .tr{display:grid;padding:5px 12px;border-top:0.5px solid var(--border);gap:6px;align-items:center;font-size:12px}
 .tr:first-child{border-top:none}
@@ -75,32 +114,39 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 .tr-hi{background:#e6f4ea;font-weight:700}
 .mono{font-family:'Courier New',monospace;font-size:11px}
 .right{text-align:right}
-
-/* Layout 2 col */
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px}
-
-/* Alertas */
 .alert-row{display:grid;grid-template-columns:1fr auto auto;padding:6px 12px;border-top:0.5px solid var(--border);align-items:center;gap:8px;font-size:12px}
 .alert-row:first-child{border-top:none}
 .af{font-size:9px;color:var(--dim)}
-.ok-icon{color:var(--green);font-weight:700;font-size:14px}
-.warn-icon{color:var(--orange);font-weight:700;font-size:14px}
-
-/* Error */
-.err{padding:10px 14px;background:#ffebee;color:#a00000;border-radius:8px;font-size:12px;margin-bottom:12px;display:none}
-
-/* Nota legal */
+.ok-i{color:var(--green);font-weight:700;font-size:14px}
+.warn-i{color:var(--orange);font-weight:700;font-size:14px}
 .nota{font-size:10px;color:var(--dim);margin-top:16px;padding:10px 14px;background:var(--surface);border-radius:7px;border:0.5px solid var(--border);line-height:1.6}
-
-/* Responsive */
-@media(max-width:640px){
-  .form-row{grid-template-columns:1fr}
-  .kpis{grid-template-columns:1fr 1fr}
-  .grid2{grid-template-columns:1fr}
-}
+.prueba-banner{background:#fff3e0;border:0.5px solid #f59e0b;border-radius:8px;padding:8px 14px;font-size:11px;color:#92400e;margin-bottom:14px;display:none}
 </style>
 </head>
 <body>
+
+<!-- ── PANTALLA DE LOGIN ────────────────────────────────────────────── -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">ACR NORMATIVA CNBV</div>
+    <div class="login-title">Reporte Regulatorio</div>
+    <div class="login-sub">SOCAP · Nivel de Operaciones Básico · Anexo U<br>Desarrollado por Omar León Corona © 2026</div>
+    <label class="login-label">CLAVE DE ACCESO</label>
+    <input class="login-input" id="login-input" type="password"
+           placeholder="Ingresa tu clave de acceso"
+           onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="login-btn" onclick="doLogin()">Acceder →</button>
+    <div class="login-error" id="login-error"></div>
+    <div class="login-footer">
+      Sistema de cumplimiento regulatorio para SOCAP<br>
+      Acceso autorizado únicamente con clave provista por el autor
+    </div>
+  </div>
+</div>
+
+<!-- ── PANTALLA PRINCIPAL ──────────────────────────────────────────── -->
+<div id="app-screen">
 <div class="shell">
 
   <div class="hdr">
@@ -109,14 +155,52 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
       <div class="title">Reporte Regulatorio</div>
       <div class="sub">SOCAP · Nivel de Operaciones Básico · Anexo U</div>
     </div>
-    <div class="hdr-r">
-      Arts. 1 Bis 1 · 1 Bis 3 · 1 Bis 4 · 1 Bis 6<br>
-      Disposiciones CNBV · LRASCAP Art. 15<br>
-      Contraparte: CSA / FOCOOP
+    <div class="hdr-r">Arts. 1 Bis 1 · 1 Bis 3 · 1 Bis 4 · 1 Bis 6<br>Disposiciones CNBV · LRASCAP Art. 15<br>Contraparte: CSA / FOCOOP</div>
+  </div>
+
+  <!-- Barra de usuario -->
+  <div class="user-bar" id="user-bar">
+    <span class="badge" id="badge-tipo">MASTER</span>
+    <span class="titular" id="user-titular"></span>
+    <span class="usos" id="user-usos"></span>
+    <span class="logout" onclick="logout()">Cerrar sesión</span>
+  </div>
+
+  <!-- Banner prueba -->
+  <div class="prueba-banner" id="prueba-banner">
+    ⚠ Versión de prueba — Los reportes descargados incluirán marca de agua y leyenda de autoría.
+    Usos restantes: <strong id="usos-restantes">—</strong>
+  </div>
+
+  <!-- Panel maestro (solo Omar) -->
+  <div class="panel-maestro" id="panel-maestro" style="display:none">
+    <div class="pm-title">GESTIÓN DE ACCESOS — Panel de administración</div>
+    <div class="pm-form">
+      <div class="pm-field">
+        <label>TITULAR</label>
+        <input id="pm-titular" placeholder="Nombre completo">
+      </div>
+      <div class="pm-field">
+        <label>EMPRESA / COOPERATIVA</label>
+        <input id="pm-empresa" placeholder="Gota de Agua">
+      </div>
+      <div class="pm-field">
+        <label>USOS</label>
+        <input id="pm-usos" type="number" value="5" min="1" max="50" style="width:80px">
+      </div>
+      <div class="pm-field">
+        <label>EXPIRA</label>
+        <input id="pm-expira" type="date" value="2026-08-31">
+      </div>
+      <button class="pm-btn" onclick="generarClave()">+ Generar clave</button>
+    </div>
+    <div class="clave-resultado" id="clave-resultado">
+      <div class="clave-meta" id="clave-meta"></div>
+      <div class="clave-txt" id="clave-txt"></div>
     </div>
   </div>
 
-  <!-- Formulario -->
+  <!-- Formulario de carga -->
   <div id="form-section">
     <div class="form-row">
       <div class="field">
@@ -125,18 +209,9 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
       </div>
       <div class="field">
         <label>OPERADOR</label>
-        <input type="text" id="operador" value="Omar Corona" placeholder="Nombre del operador">
-      </div>
-      <div class="field" style="grid-column:1/-1">
-        <label>CLAVE DE LICENCIA DE PRUEBA (opcional — provista por Omar León Corona)</label>
-        <input type="text" id="licencia" placeholder="Deja vacío si no tienes clave de prueba" style="font-family:monospace;font-size:11px">
-      </div>
-      <div class="field">
-        <label>COOPERATIVA (opcional — se detecta del archivo)</label>
-        <input type="text" id="nombre-manual" placeholder="Se extrae automáticamente">
+        <input type="text" id="operador" value="Omar Corona">
       </div>
     </div>
-
     <div class="drop" id="drop"
          ondragover="ev(event,'over')" ondragleave="ev(event,'out')" ondrop="onDrop(event)">
       <div class="drop-icon">📂</div>
@@ -146,150 +221,191 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
     </div>
   </div>
 
-  <div class="loader" id="loader">
-    <div class="spinner"></div>
-    Procesando archivo…
-  </div>
-  <div class="err" id="err"></div>
-
-  <!-- Resultado -->
   <div id="resultado" style="display:none"></div>
 
 </div>
+</div>
 
 <script>
-let datos = null;
+// ── Estado ────────────────────────────────────────────────────────────────────
+let sesion = null;   // {tipo, titular, clave, usos_restantes, ...}
+let datos  = null;
 
-function ev(e, tipo) {
-  e.preventDefault();
-  document.getElementById("drop").classList.toggle("over", tipo === "over");
+// ── Login ─────────────────────────────────────────────────────────────────────
+async function doLogin() {
+  const clave = document.getElementById("login-input").value.trim();
+  const errEl = document.getElementById("login-error");
+  errEl.textContent = "";
+  if (!clave) { errEl.textContent = "Ingresa tu clave de acceso."; return; }
+
+  const r = await fetch("/api/login", {
+    method:"POST", headers:{"Content-Type":"application/json"},
+    body: JSON.stringify({clave})
+  });
+  const data = await r.json();
+
+  if (!data.ok) {
+    errEl.textContent = data.error || "Clave incorrecta.";
+    return;
+  }
+
+  sesion = {...data, clave};
+  mostrarApp();
 }
-function onDrop(e) { e.preventDefault(); onFile(e.dataTransfer.files[0]); }
 
-function onFile(file) {
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = e => {
-    try {
-      const wb = XLSX.read(e.target.result, {type:"array"});
-      procesarLocal(wb, file.name);
-    } catch(err) { mostrarError("Error leyendo el archivo: " + err.message); }
-  };
-  reader.readAsArrayBuffer(file);
+function mostrarApp() {
+  document.getElementById("login-screen").style.display = "none";
+  document.getElementById("app-screen").style.display   = "block";
+
+  // Barra de usuario
+  const badge = document.getElementById("badge-tipo");
+  badge.textContent = sesion.tipo === "master" ? "MASTER" : "PRUEBA";
+  badge.className   = "badge" + (sesion.tipo === "prueba" ? " badge-prueba" : "");
+  document.getElementById("user-titular").textContent = sesion.titular;
+  document.getElementById("user-usos").textContent =
+    sesion.tipo === "prueba" ? `${sesion.usos_restantes} reportes restantes` : "";
+
+  // Panel maestro
+  if (sesion.tipo === "master") {
+    document.getElementById("panel-maestro").style.display = "block";
+  }
+
+  // Banner prueba
+  if (sesion.tipo === "prueba") {
+    const b = document.getElementById("prueba-banner");
+    b.style.display = "block";
+    document.getElementById("usos-restantes").textContent = sesion.usos_restantes;
+  }
 }
 
-// ── Extractor client-side (mismo motor que backend) ──────────────────────────
-const CLAVES = {
+function logout() {
+  sesion = null; datos = null;
+  document.getElementById("login-screen").style.display = "flex";
+  document.getElementById("app-screen").style.display   = "none";
+  document.getElementById("login-input").value = "";
+  document.getElementById("resultado").style.display = "none";
+}
+
+// ── Panel maestro ─────────────────────────────────────────────────────────────
+async function generarClave() {
+  const titular = document.getElementById("pm-titular").value.trim();
+  const empresa = document.getElementById("pm-empresa").value.trim();
+  const max_usos= parseInt(document.getElementById("pm-usos").value) || 5;
+  const expira  = document.getElementById("pm-expira").value;
+  if (!titular) { alert("Ingresa el nombre del titular."); return; }
+
+  const r = await fetch("/api/generar-clave", {
+    method:"POST", headers:{"Content-Type":"application/json"},
+    body: JSON.stringify({clave_operador: sesion.clave, titular: titular+(empresa?` — ${empresa}`:""), max_usos, expira})
+  });
+  const data = await r.json();
+  if (data.error) { alert(data.error); return; }
+
+  const res = document.getElementById("clave-resultado");
+  res.style.display = "block";
+  document.getElementById("clave-meta").textContent =
+    `${data.titular} · ${data.max_usos} usos · expira ${data.expira} · ID: ${data.id}`;
+  document.getElementById("clave-txt").textContent = data.clave;
+
+  // Copiar al portapapeles
+  navigator.clipboard?.writeText(data.clave).then(()=>{
+    document.getElementById("clave-meta").textContent += " ✓ Copiada al portapapeles";
+  }).catch(()=>{});
+}
+
+// ── Extractor Excel (client-side) ──────────────────────────────────────────────
+const CLAVES_MAP = {
   efectivo:["otras disponibilidades","total disponibilidades","caja","bancos","efectivo","disponibilidades"],
   cartera_vigente:["total cartera de cred. vigente","total cartera de credito vigente","total cartera vigente"],
   cartera_vencida:["total cartera de cred. vencida","total cartera de credito vencida","total cartera vencida"],
   estimacion_prev:["est. prev. p/ riesgo","estimacion preventiva para riesgo","estimacion preventiva"],
-  otras_cxc:["otras cuentas por cobrar"],
-  bienes_adj:["bienes adjudicados"],
+  otras_cxc:["otras cuentas por cobrar"],bienes_adj:["bienes adjudicados"],
   inmuebles:["inmuebles, mobiliario","mobiliario y equipo"],
   otros_activos:["otros activos","cargos diferidos y pagos anticipados"],
   dep_exig_inm:["depositos de exigibilidad inmediata"],
-  dep_plazo:["depositos a plazo","deposito a plazo"],
-  cuentas_sin_mov:["cuentas sin movimiento"],
-  prestamos_cp:["de corto plazo"],
-  prestamos_lp:["de largo plazo"],
+  dep_plazo:["depositos a plazo","deposito a plazo"],cuentas_sin_mov:["cuentas sin movimiento"],
+  prestamos_cp:["de corto plazo"],prestamos_lp:["de largo plazo"],
   otras_cxp:["acreedores diversos","otras cuentas por pagar"],
   cert_ord:["capital social total","capital social"],
   cert_vol:["aportacion voluntaria","certificados excedentes","aportaciones voluntarias"],
   reservas:["fondo de reserva","reservas de capital","reserva"],
-  result_ant:["resultado de ejercicios anteriores"],
-  result_neto_bg:["resultado neto"],
-  ingresos_int:["ingresos por intereses"],
-  gastos_int:["gastos por intereses"],
+  result_ant:["resultado de ejercicios anteriores"],result_neto_bg:["resultado neto"],
+  ingresos_int:["ingresos por intereses"],gastos_int:["gastos por intereses"],
   est_riesgos_er:["estimacion preventiva para riesgos","est. prev. p/ riesgo"],
   otros_ing:["otros productos","resultado por intermediacion","comisiones y tarifas cobradas"],
   gastos_adm:["gastos de administracion y promocion","gastos de administracion"],
 };
-const ER_SET = new Set(["ingresos_int","gastos_int","est_riesgos_er","otros_ing","gastos_adm"]);
-
+const ER_SET2 = new Set(["ingresos_int","gastos_int","est_riesgos_er","otros_ing","gastos_adm"]);
 const N = s => String(s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").trim();
 
-function buscar(rows, claves, abs=false) {
-  for (const row of rows) {
-    const tx = row.filter(c=>typeof c==="string"&&c.trim().length>2).map(c=>N(c));
-    const nu = row.filter(c=>typeof c==="number"&&Math.abs(c)>0.01);
-    if (!nu.length||!tx.length) continue;
-    for (const cl of claves) {
-      const nc = N(cl);
-      if (tx.some(t=>t.includes(nc)||(nc.length>12&&t.startsWith(nc.slice(0,12))))) {
-        const v = nu.reduce((a,b)=>Math.abs(b)>Math.abs(a)?b:a, nu[0]);
-        return abs ? Math.abs(v) : v;
+function buscarV(rows,claves,abs=false){
+  for(const row of rows){
+    const tx=row.filter(c=>typeof c==="string"&&c.trim().length>2).map(c=>N(c));
+    const nu=row.filter(c=>typeof c==="number"&&Math.abs(c)>0.01);
+    if(!nu.length||!tx.length)continue;
+    for(const cl of claves){
+      const nc=N(cl);
+      if(tx.some(t=>t.includes(nc)||(nc.length>12&&t.startsWith(nc.slice(0,12))))){
+        const v=nu.reduce((a,b)=>Math.abs(b)>Math.abs(a)?b:a,nu[0]);
+        return abs?Math.abs(v):v;
       }
     }
   }
   return 0;
 }
 
-function extraerWB(wb) {
-  const nms = wb.SheetNames.map(n=>n.toUpperCase());
-  const hoja = pref => {
-    const i = nms.findIndex(n=>pref.some(p=>n.includes(p)));
-    return XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[i>=0?i:0]], {header:1,defval:null});
-  };
-  const bg = hoja(["BG","BALANCE","SITUACION","ACTIVO"]);
-  const er = hoja(["ED","ER","RESULTADO","RESULT"]);
-  const d = {};
-  for (const [r,cl] of Object.entries(CLAVES)) {
-    d[r] = buscar(ER_SET.has(r)?er:bg, cl, r==="estimacion_prev") || 0;
-  }
-  let nombre="", fecha="";
-  for (const row of bg.slice(0,10)) {
-    for (const c of row) {
-      if (typeof c!=="string") continue;
-      const u = c.toUpperCase();
-      if (c.length>15&&(u.includes("COOPERATIVA")||c.includes("S.C.")||c.includes("SC de"))) nombre=c.trim();
-      if ((c.toLowerCase().includes("al ")&&c.includes("20"))||c.toLowerCase().includes("estado de situacion")) fecha=c.trim();
-    }
-  }
-  return {d, nombre, fecha};
+function extraerWB(wb){
+  const nms=wb.SheetNames.map(n=>n.toUpperCase());
+  const hoja=pref=>{const i=nms.findIndex(n=>pref.some(p=>n.includes(p)));return XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[i>=0?i:0]],{header:1,defval:null});};
+  const bg=hoja(["BG","BALANCE","SITUACION","ACTIVO"]);
+  const er=hoja(["ED","ER","RESULTADO","RESULT"]);
+  const d={};
+  for(const[r,cl]of Object.entries(CLAVES_MAP)){d[r]=buscarV(ER_SET2.has(r)?er:bg,cl,r==="estimacion_prev")||0;}
+  let nombre="",fecha="";
+  for(const row of bg.slice(0,10)){for(const c of row){if(typeof c!=="string")continue;const u=c.toUpperCase();if(c.length>15&&(u.includes("COOPERATIVA")||c.includes("S.C.")||c.includes("SC de")))nombre=c.trim();if((c.toLowerCase().includes("al ")&&c.includes("20"))||c.toLowerCase().includes("estado de situacion"))fecha=c.trim();}}
+  return{d,nombre,fecha};
 }
 
-function calcularLocal(d) {
+function calcular(d){
   const cn=(d.cartera_vigente||0)+(d.cartera_vencida||0)-(d.estimacion_prev||0);
   const rq=cn*0.08;
   const cc=(d.cert_ord||0)+(d.cert_vol||0)+(d.reservas||0)+(d.result_ant||0)+(d.result_neto_bg||0);
-  const kn=cc;
-  const nc=rq>0?(kn/rq*100):null;
+  const kn=cc,nc=rq>0?(kn/rq*100):null;
   const cat=nc==null?"—":nc>=150?"A":nc>=100?"B":nc>=50?"C":"D";
   const ta=(d.efectivo||0)+cn+(d.otras_cxc||0)+(d.bienes_adj||0)+(d.inmuebles||0)+(d.otros_activos||0);
   const tp=(d.dep_exig_inm||0)+(d.dep_plazo||0)+(d.cuentas_sin_mov||0)+(d.prestamos_cp||0)+(d.prestamos_lp||0)+(d.otras_cxp||0);
-  const rf=(d.ingresos_int||0)-(d.gastos_int||0);
-  const rfaj=rf-(d.est_riesgos_er||0);
-  const rn=rfaj+(d.otros_ing||0)-(d.gastos_adm||0);
-  const cuadra=Math.abs(ta-(tp+cc))<500;
-  return {cn,rq,cc,kn,nc,cat,ta,tp,cuadra,rf,rfaj,rn};
+  const rf=(d.ingresos_int||0)-(d.gastos_int||0),rfaj=rf-(d.est_riesgos_er||0);
+  return{cn,rq,cc,kn,nc,cat,ta,tp,cuadra:Math.abs(ta-(tp+cc))<500,rf,rfaj,rn:rfaj+(d.otros_ing||0)-(d.gastos_adm||0)};
 }
 
-function procesarLocal(wb, archivo) {
-  document.getElementById("loader").style.display="block";
-  document.getElementById("resultado").style.display="none";
-  document.getElementById("err").style.display="none";
-  setTimeout(() => {
-    const {d, nombre, fecha} = extraerWB(wb);
-    const c = calcularLocal(d);
-    const nombreFinal = document.getElementById("nombre-manual").value || nombre;
-    const fechaCorte  = document.getElementById("fecha").value;
-    const operador    = document.getElementById("operador").value;
-    datos = {d, c, nombre:nombreFinal, fecha, fecha_corte:fechaCorte, operador, archivo};
-    renderResultado();
-  }, 100);
+// ── Carga de archivo ──────────────────────────────────────────────────────────
+const F=n=>n==null?"—":"$"+Number(n).toLocaleString("es-MX",{minimumFractionDigits:2,maximumFractionDigits:2});
+const FP=n=>n==null?"—":Number(n).toFixed(2)+"%";
+const CAT_COL={A:"#1a6b1a",B:"#7a5a00",C:"#a04000",D:"#b00000"};
+
+function ev(e,tipo){e.preventDefault();document.getElementById("drop").classList.toggle("over",tipo==="over");}
+function onDrop(e){e.preventDefault();onFile(e.dataTransfer.files[0]);}
+
+function onFile(file){
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const wb=XLSX.read(e.target.result,{type:"array"});
+      const{d,nombre,fecha}=extraerWB(wb);
+      const c=calcular(d);
+      datos={d,c,nombre,fecha,fecha_corte:document.getElementById("fecha").value,
+             operador:document.getElementById("operador").value,archivo:file.name};
+      renderResultado();
+    }catch(err){alert("Error leyendo el archivo: "+err.message);}
+  };
+  reader.readAsArrayBuffer(file);
 }
 
-const F  = n => n==null?"—":"$"+Number(n).toLocaleString("es-MX",{minimumFractionDigits:2,maximumFractionDigits:2});
-const FP = n => n==null?"—":Number(n).toFixed(2)+"%";
-
-const CAT_COL = {A:"var(--green)",B:"var(--amber)",C:"var(--orange)",D:"var(--red)"};
-
-function renderResultado() {
-  const {d,c,nombre,fecha,fecha_corte,operador,archivo} = datos;
-  const cc = CAT_COL[c.cat]||"var(--muted)";
-
-  const rengs = [
+function renderResultado(){
+  const{d,c,nombre,fecha,fecha_corte,archivo}=datos;
+  const cc=CAT_COL[c.cat]||"#555";
+  const rengs=[
     ["(1)","Cartera Vigente",d.cartera_vigente,"balanza",false,false],
     ["(2)","Cartera Vencida",d.cartera_vencida,"balanza",false,false],
     ["(3)","Estimación preventiva para riesgos crediticios",d.estimacion_prev,"balanza",false,false],
@@ -301,165 +417,98 @@ function renderResultado() {
     ["(9)","Capital neto  (6)−(7)−(8)",c.kn,"Art. 1 Bis 4",true,false],
     ["(10)","Nivel de capitalización  [(9)/(5)]×100",c.nc,"Art. 1 Bis 6",true,true],
   ];
-
-  const renderRengs = rengs.map(([n,con,v,f,bold,esNiv])=>`
-  <div class="tr ${esNiv?"tr-hi":bold?"tr-bold":""}" style="grid-template-columns:38px 1fr 130px 130px">
-    <span class="mono" style="color:var(--dim)">${n}</span>
-    <span>${con}</span>
-    <span style="text-align:right;font-size:10px;color:var(--dim)">${f}</span>
-    <span class="mono right" style="color:${esNiv?cc:"inherit"}">${esNiv?FP(v):F(v)}</span>
-  </div>`).join("");
-
-  const renderBal = [
-    ["Efectivo",d.efectivo,false],
-    ["Cartera de crédito vigente",d.cartera_vigente,false],
-    ["Cartera de crédito vencida",d.cartera_vencida,false],
-    ["(−) Estimación preventiva",-(d.estimacion_prev||0),false],
-    ["Cartera de crédito (neto)",c.cn,true],
-    ["Otras cuentas por cobrar (neto)",d.otras_cxc,false],
-    ["Bienes adjudicados",d.bienes_adj,false],
-    ["Inmuebles, mobiliario y equipo (neto)",d.inmuebles,false],
-    ["Otros activos",d.otros_activos,false],
-    ["TOTAL ACTIVO",c.ta,true],
-    ["·","·","sep"],
-    ["Depósitos",(d.dep_exig_inm||0)+(d.dep_plazo||0)+(d.cuentas_sin_mov||0),false],
-    ["Préstamos bancarios",(d.prestamos_cp||0)+(d.prestamos_lp||0),false],
-    ["Otras cuentas por pagar",d.otras_cxp,false],
-    ["TOTAL PASIVO",c.tp,true],
-    ["Capital contribuido",(d.cert_ord||0)+(d.cert_vol||0),false],
-    ["Capital ganado",(d.reservas||0)+(d.result_ant||0)+(d.result_neto_bg||0),false],
-    ["TOTAL CAPITAL CONTABLE",c.cc,true],
-  ].map(([k,v,bold])=>bold==="sep"?
-    `<div class="tr" style="grid-template-columns:1fr;padding:2px 12px"><span style="font-size:8px;color:var(--border);letter-spacing:.4em">──────────────────────</span></div>`:
-    `<div class="tr ${bold?"tr-bold":""}" style="grid-template-columns:1fr auto">
-      <span>${k}</span><span class="mono right">${F(v)}</span>
-    </div>`).join("");
-
-  const renderER = [
-    ["Ingresos por intereses",d.ingresos_int,false],
-    ["(−) Gastos por intereses",-(d.gastos_int||0),false],
-    ["RESULTADO FINANCIERO",c.rf,true],
-    ["(−) Estimación preventiva",-(d.est_riesgos_er||0),false],
-    ["RESULTADO FIN. AJUSTADO",c.rfaj,true],
-    ["Otros ingresos (egresos)",d.otros_ing,false],
-    ["(−) Gastos de administración",-(d.gastos_adm||0),false],
-    ["RESULTADO NETO",c.rn,true],
-  ].map(([k,v,bold])=>`
-  <div class="tr ${bold?"tr-bold":""}" style="grid-template-columns:1fr auto">
-    <span>${k}</span><span class="mono right">${F(v)}</span>
-  </div>`).join("");
-
-  const renderAlertas = [
-    ["Capital neto positivo", c.kn>0, "Art. 1 Bis 2"],
-    ["Nivel capitalización ≥ 100%", c.nc!=null&&c.nc>=100, "Art. 15 LRASCAP"],
-    ["Estimación ≥ 50% cartera vencida", (d.estimacion_prev||0)>=(d.cartera_vencida||0)*.5, "Ref. Anexo C Bis"],
-    ["Cartera vencida < vigente", (d.cartera_vencida||0)<(d.cartera_vigente||0), "Señal de alerta"],
-    ["Balance cuadra", c.cuadra, "Principio contable"],
-  ].map(([l,ok,f])=>`
-  <div class="alert-row">
-    <span>${l}</span>
-    <span class="af">${f}</span>
-    <span class="${ok?"ok-icon":"warn-icon"}">${ok?"✓":"⚠"}</span>
-  </div>`).join("");
-
-  document.getElementById("loader").style.display="none";
   document.getElementById("resultado").style.display="block";
-  document.getElementById("resultado").innerHTML = `
+  document.getElementById("resultado").innerHTML=`
   <div class="coop-bar">
-    <div>
-      <div class="coop-name">${nombre||"Cooperativa"}</div>
-      <div class="coop-meta">Corte: ${fecha_corte} · ${archivo}</div>
-    </div>
+    <div><div class="coop-name">${nombre||"Cooperativa"}</div>
+    <div class="coop-meta">Corte: ${fecha_corte} · ${archivo}</div></div>
     <div class="btns">
-      <button class="btn btn-pdf" onclick="descargarPDF()">⬇ PDF Anexo U</button>
-      <button class="btn btn-excel" onclick="descargarExcel()">⬇ Excel Anexo U</button>
-      <button class="btn" onclick="resetear()">Cargar otro archivo</button>
+      <button class="btn btn-pdf" onclick="descargar('/api/pdf','pdf')">⬇ PDF Anexo U</button>
+      <button class="btn btn-excel" onclick="descargar('/api/excel','xlsx')">⬇ Excel Anexo U</button>
+      <button class="btn btn-ghost" onclick="datos=null;document.getElementById('resultado').style.display='none'">Cargar otro</button>
     </div>
   </div>
-
   <div class="kpis">
-    <div class="kpi kpi-cat">
-      <div class="kpi-lbl">CATEGORÍA</div>
-      <div class="kpi-val" style="color:${cc}">${c.cat}</div>
-      <div class="kpi-sub">Art. 15 LRASCAP</div>
-    </div>
-    <div class="kpi">
-      <div class="kpi-lbl">NIVEL DE CAPITALIZACIÓN</div>
-      <div class="kpi-val" style="color:${cc};font-size:24px">${FP(c.nc)}</div>
-      <div class="kpi-sub">Art. 1 Bis 3</div>
-    </div>
-    <div class="kpi">
-      <div class="kpi-lbl">CAPITAL NETO</div>
-      <div class="kpi-val" style="font-size:15px;margin-top:4px">${F(c.kn)}</div>
-      <div class="kpi-sub">Art. 1 Bis 4</div>
-    </div>
-    <div class="kpi">
-      <div class="kpi-lbl">BALANCE</div>
-      <div class="kpi-val" style="color:${c.cuadra?"var(--green)":"var(--orange)"};font-size:20px">${c.cuadra?"✓ Cuadra":"⚠ Revisar"}</div>
-      <div class="kpi-sub">Activo = Pasivo + Capital</div>
-    </div>
+    <div class="kpi"><div class="kpi-lbl">CATEGORÍA</div><div class="kpi-val" style="color:${cc};font-size:28px">${c.cat}</div><div class="kpi-sub">Art. 15 LRASCAP</div></div>
+    <div class="kpi"><div class="kpi-lbl">NIVEL DE CAPITALIZACIÓN</div><div class="kpi-val" style="color:${cc};font-size:23px">${FP(c.nc)}</div><div class="kpi-sub">Art. 1 Bis 3</div></div>
+    <div class="kpi"><div class="kpi-lbl">CAPITAL NETO</div><div class="kpi-val" style="font-size:14px;margin-top:4px">${F(c.kn)}</div><div class="kpi-sub">Art. 1 Bis 4</div></div>
+    <div class="kpi"><div class="kpi-lbl">BALANCE</div><div class="kpi-val" style="color:${c.cuadra?"#1a6b1a":"#a04000"}">${c.cuadra?"✓ Cuadra":"⚠ Revisar"}</div><div class="kpi-sub">Activo = Pasivo + Capital</div></div>
   </div>
-
   <div class="sec">CÓMPUTO DEL NIVEL DE CAPITALIZACIÓN — ANEXO U</div>
   <div class="tbl" style="margin-bottom:18px">
-    <div class="tr tr-hd" style="grid-template-columns:38px 1fr 130px 130px">
-      <span>#</span><span>Concepto</span>
-      <span class="right">Fundamento</span><span class="right">Importe</span>
-    </div>
-    ${renderRengs}
+    <div class="tr tr-hd" style="grid-template-columns:38px 1fr 130px 130px"><span>#</span><span>Concepto</span><span class="right">Fundamento</span><span class="right">Importe</span></div>
+    ${rengs.map(([n,con,v,f,bold,esNiv])=>`
+    <div class="tr ${esNiv?"tr-hi":bold?"tr-bold":""}" style="grid-template-columns:38px 1fr 130px 130px">
+      <span class="mono" style="color:var(--dim)">${n}</span>
+      <span style="font-weight:${bold?600:400}">${con}</span>
+      <span style="font-size:10px;color:var(--dim);text-align:right">${f}</span>
+      <span class="mono right" style="color:${esNiv?cc:"inherit"};font-weight:${bold?600:400}">${esNiv?FP(v):F(v)}</span>
+    </div>`).join("")}
   </div>
-
   <div class="grid2">
     <div>
       <div class="sec">BALANCE GENERAL — NIVEL BÁSICO</div>
-      <div class="tbl">${renderBal}</div>
+      <div class="tbl">${[
+        ["Efectivo",d.efectivo,false],["Cartera de crédito vigente",d.cartera_vigente,false],
+        ["Cartera de crédito vencida",d.cartera_vencida,false],["(−) Estimación preventiva",-(d.estimacion_prev||0),false],
+        ["Cartera de crédito (neto)",c.cn,true],["Otras cuentas por cobrar (neto)",d.otras_cxc,false],
+        ["Bienes adjudicados",d.bienes_adj,false],["Inmuebles, mobiliario y equipo (neto)",d.inmuebles,false],
+        ["Otros activos",d.otros_activos,false],["TOTAL ACTIVO",c.ta,true],
+        ["Depósitos",(d.dep_exig_inm||0)+(d.dep_plazo||0)+(d.cuentas_sin_mov||0),false],
+        ["Préstamos bancarios",(d.prestamos_cp||0)+(d.prestamos_lp||0),false],
+        ["Otras cuentas por pagar",d.otras_cxp,false],["TOTAL PASIVO",c.tp,true],
+        ["Capital contribuido",(d.cert_ord||0)+(d.cert_vol||0),false],
+        ["Capital ganado",(d.reservas||0)+(d.result_ant||0)+(d.result_neto_bg||0),false],
+        ["TOTAL CAPITAL CONTABLE",c.cc,true],
+      ].map(([k,v,bold])=>`<div class="tr ${bold?"tr-bold":""}" style="grid-template-columns:1fr auto"><span style="font-size:11px;font-weight:${bold?600:400}">${k}</span><span class="mono right" style="font-weight:${bold?600:400}">${F(v)}</span></div>`).join("")}</div>
     </div>
     <div>
       <div class="sec">ESTADO DE RESULTADOS — NIVEL BÁSICO</div>
-      <div class="tbl" style="margin-bottom:14px">${renderER}</div>
+      <div class="tbl" style="margin-bottom:12px">${[
+        ["Ingresos por intereses",d.ingresos_int,false],["(−) Gastos por intereses",-(d.gastos_int||0),false],
+        ["RESULTADO FINANCIERO",c.rf,true],["(−) Estimación preventiva",-(d.est_riesgos_er||0),false],
+        ["RESULTADO FIN. AJUSTADO",c.rfaj,true],["Otros ingresos (egresos)",d.otros_ing,false],
+        ["(−) Gastos de administración",-(d.gastos_adm||0),false],["RESULTADO NETO",c.rn,true],
+      ].map(([k,v,bold])=>`<div class="tr ${bold?"tr-bold":""}" style="grid-template-columns:1fr auto"><span style="font-size:11px;font-weight:${bold?600:400}">${k}</span><span class="mono right">${F(v)}</span></div>`).join("")}</div>
       <div class="sec">VERIFICACIÓN NORMATIVA</div>
-      <div class="tbl">${renderAlertas}</div>
+      <div class="tbl">${[
+        ["Capital neto positivo",c.kn>0,"Art. 1 Bis 2"],
+        ["Nivel capitalización ≥ 100%",c.nc!=null&&c.nc>=100,"Art. 15 LRASCAP"],
+        ["Estimación ≥ 50% cartera vencida",(d.estimacion_prev||0)>=(d.cartera_vencida||0)*.5,"Ref. Anexo C Bis"],
+        ["Cartera vencida < vigente",(d.cartera_vencida||0)<(d.cartera_vigente||0),"Señal de alerta"],
+        ["Balance cuadra",c.cuadra,"Principio contable"],
+      ].map(([l,ok,f])=>`<div class="alert-row"><span>${l}</span><span class="af">${f}</span><span class="${ok?"ok-i":"warn-i"}">${ok?"✓":"⚠"}</span></div>`).join("")}</div>
     </div>
   </div>
-
-  <div class="nota">
-    La formulación y presentación de los estados financieros básicos es responsabilidad del Consejo de Administración (Art. 1 Bis 1 Disposiciones CNBV). Este sistema es herramienta de apoyo al cálculo. El cómputo rige para todos los efectos legales salvo que el Comité de Supervisión Auxiliar, en ejercicio de sus facultades de verificación (Art. 1 Bis 6), obtenga un cómputo distinto, en cuyo caso el del Comité será el definitivo.
-  </div>`;
+  <div class="nota">La formulación y presentación de los estados financieros básicos es responsabilidad del Consejo de Administración (Art. 1 Bis 1 Disposiciones CNBV). Este sistema es herramienta de apoyo al cálculo. El cómputo rige salvo verificación del CSA (Art. 1 Bis 6). Desarrollado por Omar León Corona © 2026.</div>`;
 }
 
-function mostrarError(msg) {
-  document.getElementById("loader").style.display="none";
-  const el = document.getElementById("err");
-  el.textContent = msg; el.style.display="block";
-}
+// ── Descarga ──────────────────────────────────────────────────────────────────
+async function descargar(endpoint, ext) {
+  if (!datos||!sesion) return;
+  const{d,c,nombre,fecha_corte,operador}=datos;
+  const r = await fetch(endpoint,{
+    method:"POST",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({datos:d,calculo:c,nombre,fecha_corte,operador,clave_sesion:sesion.clave})
+  });
+  if (!r.ok) {
+    const err = await r.json();
+    alert(err.error || "Error generando el reporte.");
+    return;
+  }
+  const blob = await r.blob();
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement("a");
+  a.href=url; a.download=`AnexoU_${(nombre||"SOCAP").slice(0,20).replace(/ /g,"_")}_${fecha_corte}.${ext}`;
+  a.click(); URL.revokeObjectURL(url);
 
-function resetear() {
-  datos=null;
-  document.getElementById("resultado").style.display="none";
-  document.getElementById("err").style.display="none";
-  document.getElementById("drop").classList.remove("over");
+  // Actualizar contador si es prueba
+  if (sesion.tipo==="prueba") {
+    sesion.usos_restantes = Math.max(0, sesion.usos_restantes - 1);
+    document.getElementById("usos-restantes").textContent = sesion.usos_restantes;
+    document.getElementById("user-usos").textContent = `${sesion.usos_restantes} reportes restantes`;
+  }
 }
-
-function descargar(endpoint, ext, mime) {
-  if (!datos) return;
-  const {d,c,nombre,fecha_corte,operador} = datos;
-  const licencia = document.getElementById("licencia")?.value?.trim() || "";
-  fetch(endpoint, {
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body: JSON.stringify({datos:d, calculo:c, nombre, fecha_corte, operador, licencia})
-  })
-  .then(r => r.blob())
-  .then(blob => {
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href=url; a.download=`AnexoU_${(nombre||"SOCAP").slice(0,20).replace(/ /g,"_")}_${fecha_corte}.${ext}`;
-    a.click(); URL.revokeObjectURL(url);
-  })
-  .catch(() => alert(`Error generando el ${ext.toUpperCase()}. Verifica que el servidor esté activo.`));
-}
-function descargarPDF()   { descargar("/api/pdf",   "pdf",  "application/pdf"); }
-function descargarExcel() { descargar("/api/excel", "xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"); }
 </script>
 </body>
 </html>
