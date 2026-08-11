@@ -160,16 +160,9 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 
   <!-- Barra de usuario -->
   <div class="user-bar" id="user-bar">
-    <span class="badge" id="badge-tipo">MASTER</span>
+    <span class="badge" id="badge-tipo" style="display:none">MASTER</span>
     <span class="titular" id="user-titular"></span>
-    <span class="usos" id="user-usos"></span>
     <span class="logout" onclick="logout()">Cerrar sesión</span>
-  </div>
-
-  <!-- Banner prueba -->
-  <div class="prueba-banner" id="prueba-banner">
-    ⚠ Versión de prueba — Los reportes descargados incluirán marca de agua y leyenda de autoría.
-    Usos restantes: <strong id="usos-restantes">—</strong>
   </div>
 
   <!-- Panel maestro (solo Omar) -->
@@ -257,24 +250,17 @@ function mostrarApp() {
   document.getElementById("login-screen").style.display = "none";
   document.getElementById("app-screen").style.display   = "block";
 
-  // Barra de usuario
-  const badge = document.getElementById("badge-tipo");
-  badge.textContent = sesion.tipo === "master" ? "MASTER" : "PRUEBA";
-  badge.className   = "badge" + (sesion.tipo === "prueba" ? " badge-prueba" : "");
+  // Barra de usuario — sin indicadores de tipo para usuarios de prueba
   document.getElementById("user-titular").textContent = sesion.titular;
-  document.getElementById("user-usos").textContent =
-    sesion.tipo === "prueba" ? `${sesion.usos_restantes} reportes restantes` : "";
-
-  // Panel maestro
   if (sesion.tipo === "master") {
-    document.getElementById("panel-maestro").style.display = "block";
+    const badge = document.getElementById("badge-tipo");
+    badge.style.display = "inline-block";
+    badge.textContent = "MASTER";
   }
 
-  // Banner prueba
-  if (sesion.tipo === "prueba") {
-    const b = document.getElementById("prueba-banner");
-    b.style.display = "block";
-    document.getElementById("usos-restantes").textContent = sesion.usos_restantes;
+  // Panel maestro solo para Omar
+  if (sesion.tipo === "master") {
+    document.getElementById("panel-maestro").style.display = "block";
   }
 }
 
@@ -502,11 +488,9 @@ async function descargar(endpoint, ext) {
   a.href=url; a.download=`AnexoU_${(nombre||"SOCAP").slice(0,20).replace(/ /g,"_")}_${fecha_corte}.${ext}`;
   a.click(); URL.revokeObjectURL(url);
 
-  // Actualizar contador si es prueba
+  // Actualizar contador interno (sin mostrarlo)
   if (sesion.tipo==="prueba") {
     sesion.usos_restantes = Math.max(0, sesion.usos_restantes - 1);
-    document.getElementById("usos-restantes").textContent = sesion.usos_restantes;
-    document.getElementById("user-usos").textContent = `${sesion.usos_restantes} reportes restantes`;
   }
 }
 </script>
