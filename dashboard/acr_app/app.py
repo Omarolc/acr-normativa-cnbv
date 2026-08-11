@@ -20,7 +20,7 @@ W, H = letter
 
 # ── Configuración de claves ───────────────────────────────────────────────────
 MASTER_SECRET  = os.environ.get("ACR_LICENSE_SECRET", "")
-MASTER_KEY     = os.environ.get("ACR_MASTER_KEY", "MASTER2026")  # clave de Omar
+MASTER_KEY     = os.environ.get("ACR_MASTER_KEY", "")  # sin default — debe configurarse en Railway
 REVOCADAS      = set(os.environ.get("ACR_REVOKED_IDS","").upper().split(",")) - {""}
 
 # ── Verificación de licencia ──────────────────────────────────────────────────
@@ -44,8 +44,8 @@ def verificar_acceso(clave: str) -> dict:
     """
     clave = clave.strip()
 
-    # Clave maestra
-    if clave == MASTER_KEY:
+    # Clave maestra — solo si está configurada y coincide exactamente
+    if MASTER_KEY and clave == MASTER_KEY:
         return {"tipo": "master", "titular": "Omar León Corona", "usos_restantes": 999}
 
     # Clave de prueba
@@ -79,17 +79,22 @@ def verificar_acceso(clave: str) -> dict:
 
 def generar_clave_prueba(titular: str, max_usos: int, expira: date) -> tuple:
     import secrets as _sec
+    # ID legible: iniciales del titular + folio hex corto (ej. MM-3F9A1C)
+    palabras = titular.split("—")[0].strip().split()
+    iniciales = "".join(p[0].upper() for p in palabras if p)[:3]
+    folio = _sec.token_hex(3).upper()
+    clave_id = f"{iniciales}-{folio}"
     payload = {
         "titular": titular,
         "max_usos": max_usos,
         "expira": str(expira),
-        "id": _sec.token_hex(6).upper()
+        "id": clave_id
     }
     b64 = base64.urlsafe_b64encode(
         json.dumps(payload, ensure_ascii=False).encode()
     ).decode().rstrip("=")
     firma = hmac.new(MASTER_SECRET.encode(), b64.encode(), hashlib.sha256).hexdigest()[:16].upper()
-    return f"{b64}.{firma}", payload["id"]
+    return f"{b64}.{firma}", clave_id
 
 # ── Extracción de datos ───────────────────────────────────────────────────────
 def norm(s):

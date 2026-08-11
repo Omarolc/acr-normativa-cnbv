@@ -289,13 +289,16 @@ async function generarClave() {
 
   const res = document.getElementById("clave-resultado");
   res.style.display = "block";
-  document.getElementById("clave-meta").textContent =
-    `${data.titular} · ${data.max_usos} usos · expira ${data.expira} · ID: ${data.id}`;
+  // Mostrar ID corto destacado + clave completa para copiar
+  document.getElementById("clave-meta").innerHTML =
+    `<strong style="font-size:14px;letter-spacing:.05em;color:#fff">${data.id}</strong>` +
+    ` &nbsp;·&nbsp; ${data.titular} &nbsp;·&nbsp; ${data.max_usos} usos &nbsp;·&nbsp; expira ${data.expira}`;
   document.getElementById("clave-txt").textContent = data.clave;
 
-  // Copiar al portapapeles
+  // Copiar clave completa al portapapeles
   navigator.clipboard?.writeText(data.clave).then(()=>{
-    document.getElementById("clave-meta").textContent += " ✓ Copiada al portapapeles";
+    document.getElementById("clave-txt").style.color = "#90ee90";
+    setTimeout(()=>{ document.getElementById("clave-txt").style.color = ""; }, 2000);
   }).catch(()=>{});
 }
 
