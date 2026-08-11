@@ -74,7 +74,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 .pm-btn{padding:7px 16px;background:rgba(255,255,255,.14);border:0.5px solid rgba(255,255,255,.2);border-radius:6px;color:#fff;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap}
 .pm-btn:hover{background:rgba(255,255,255,.22)}
 .clave-resultado{margin-top:10px;padding:10px 12px;background:rgba(255,255,255,.06);border-radius:6px;font-size:11px;display:none}
-.clave-resultado .clave-txt{font-family:monospace;font-size:10px;word-break:break-all;color:rgba(255,255,255,.8);margin-top:4px}
+.clave-resultado .clave-txt{font-family:monospace;font-size:22px;font-weight:700;letter-spacing:.1em;color:#fff;margin-top:6px;cursor:pointer}
 .clave-resultado .clave-meta{color:rgba(255,255,255,.4);margin-bottom:4px}
 
 /* Form carga */
@@ -290,13 +290,13 @@ async function generarClave() {
   const res = document.getElementById("clave-resultado");
   res.style.display = "block";
   // Mostrar ID corto destacado + clave completa para copiar
+  // La clave de acceso ES el ID corto — fácil de copiar y usar
   document.getElementById("clave-meta").innerHTML =
-    `<strong style="font-size:14px;letter-spacing:.05em;color:#fff">${data.id}</strong>` +
-    ` &nbsp;·&nbsp; ${data.titular} &nbsp;·&nbsp; ${data.max_usos} usos &nbsp;·&nbsp; expira ${data.expira}`;
-  document.getElementById("clave-txt").textContent = data.clave;
+    `${data.titular} &nbsp;·&nbsp; ${data.max_usos} usos &nbsp;·&nbsp; expira ${data.expira}`;
+  document.getElementById("clave-txt").textContent = data.id;
 
-  // Copiar clave completa al portapapeles
-  navigator.clipboard?.writeText(data.clave).then(()=>{
+  // Copiar el ID corto al portapapeles
+  navigator.clipboard?.writeText(data.id).then(()=>{
     document.getElementById("clave-txt").style.color = "#90ee90";
     setTimeout(()=>{ document.getElementById("clave-txt").style.color = ""; }, 2000);
   }).catch(()=>{});
@@ -478,7 +478,7 @@ async function descargar(endpoint, ext) {
   const{d,c,nombre,fecha_corte,operador}=datos;
   const r = await fetch(endpoint,{
     method:"POST",headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({datos:d,calculo:c,nombre,fecha_corte,operador,clave_sesion:sesion.clave})
+    body:JSON.stringify({datos:d,calculo:c,nombre,fecha_corte,operador,clave_sesion:sesion.clave.toUpperCase()})
   });
   if (!r.ok) {
     const err = await r.json();

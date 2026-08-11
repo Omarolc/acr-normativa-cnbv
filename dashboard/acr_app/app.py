@@ -36,65 +36,78 @@ def _decodificar_clave(clave: str) -> dict:
         raise ValueError("Clave inválida")
     return payload
 
+# Base de datos de claves en memoria — cargada desde archivo al iniciar
+import json as _json
+_CLAVES_DB_PATH = os.path.join(os.path.dirname(__file__), "claves_db.json")
+
+def _cargar_claves():
+    try:
+        with open(_CLAVES_DB_PATH, encoding="utf-8") as f:
+            return _json.load(f)
+    except Exception:
+        return {}
+
+def _guardar_claves(db):
+    with open(_CLAVES_DB_PATH, "w", encoding="utf-8") as f:
+        _json.dump(db, f, ensure_ascii=False, indent=2)
+
 def verificar_acceso(clave: str) -> dict:
     """
-    Retorna dict con info del acceso:
-      tipo: 'master' | 'prueba'
-      titular, usos_restantes, expira, id
+    Clave maestra: texto simple configurado en Railway (ACR_MASTER_KEY)
+    Clave de prueba: ID corto tipo MM-F1281D
     """
-    clave = clave.strip()
+    clave = clave.strip().upper()
 
-    # Clave maestra — solo si está configurada y coincide exactamente
-    if MASTER_KEY and clave == MASTER_KEY:
+    # Clave maestra
+    if MASTER_KEY and clave == MASTER_KEY.upper():
         return {"tipo": "master", "titular": "Omar León Corona", "usos_restantes": 999}
 
-    # Clave de prueba
-    if not MASTER_SECRET:
-        raise ValueError("Servidor sin configuración de licencias.")
-    payload = _decodificar_clave(clave)
-    lid = payload["id"].upper()
-    if lid in REVOCADAS:
+    # Clave de prueba — buscar por ID corto en la DB
+    db = _cargar_claves()
+    if clave not in db:
+        raise ValueError("Clave no reconocida. Solicita acceso a Omar León Corona.")
+
+    entrada = db[clave]
+    if entrada["id"] in REVOCADAS:
         raise PermissionError("Esta clave ha sido revocada. Contacta a Omar León Corona.")
-    expira = date.fromisoformat(payload["expira"])
+
+    expira = date.fromisoformat(entrada["expira"])
     if date.today() > expira:
         raise PermissionError(f"Esta clave expiró el {expira.strftime('%d/%m/%Y')}.")
 
-    # Contar usos
-    from licencias import _init_db, _contar_usos
-    con = _init_db()
-    usos = _contar_usos(con, lid)
-    con.close()
-    restantes = payload["max_usos"] - usos
-    if restantes <= 0:
-        raise PermissionError(f"Esta clave ya consumió sus {payload['max_usos']} reportes. Contacta a Omar León Corona.")
+    usos = entrada.get("usos", 0)
+    max_usos = entrada["max_usos"]
+    if usos >= max_usos:
+        raise PermissionError(f"Esta clave ya consumió sus {max_usos} reportes. Contacta a Omar León Corona.")
 
     return {
         "tipo": "prueba",
-        "titular": payload["titular"],
-        "id": lid,
-        "max_usos": payload["max_usos"],
-        "usos_restantes": restantes,
+        "titular": entrada["titular"],
+        "id": entrada["id"],
+        "max_usos": max_usos,
+        "usos_restantes": max_usos - usos,
         "expira": str(expira),
     }
 
 def generar_clave_prueba(titular: str, max_usos: int, expira: date) -> tuple:
     import secrets as _sec
-    # ID legible: iniciales del titular + folio hex corto (ej. MM-3F9A1C)
+    # ID legible: iniciales + folio hex (ej. MM-3F9A1C)
     palabras = titular.split("—")[0].strip().split()
     iniciales = "".join(p[0].upper() for p in palabras if p)[:3]
     folio = _sec.token_hex(3).upper()
     clave_id = f"{iniciales}-{folio}"
-    payload = {
+
+    # Guardar en DB JSON local
+    db = _cargar_claves()
+    db[clave_id] = {
+        "id": clave_id,
         "titular": titular,
         "max_usos": max_usos,
         "expira": str(expira),
-        "id": clave_id
+        "usos": 0,
     }
-    b64 = base64.urlsafe_b64encode(
-        json.dumps(payload, ensure_ascii=False).encode()
-    ).decode().rstrip("=")
-    firma = hmac.new(MASTER_SECRET.encode(), b64.encode(), hashlib.sha256).hexdigest()[:16].upper()
-    return f"{b64}.{firma}", clave_id
+    _guardar_claves(db)
+    return clave_id, clave_id
 
 # ── Extracción de datos ───────────────────────────────────────────────────────
 def norm(s):
@@ -433,16 +446,16 @@ def procesar():
         return jsonify({"error": str(e)}), 500
 
 def _validar_descarga(data):
-    clave = data.get("clave_sesion","").strip()
+    clave = data.get("clave_sesion","").strip().upper()
     try:
         info = verificar_acceso(clave)
         es_prueba = info["tipo"] == "prueba"
         if es_prueba:
-            # Registrar uso
-            from licencias import _init_db, _registrar_uso
-            con = _init_db()
-            _registrar_uso(con, info["id"], info["titular"], request.remote_addr or "")
-            con.close()
+            # Registrar uso en DB JSON
+            db = _cargar_claves()
+            if clave in db:
+                db[clave]["usos"] = db[clave].get("usos", 0) + 1
+                _guardar_claves(db)
         return es_prueba, info.get("titular",""), None
     except (ValueError, PermissionError) as e:
         return None, None, ({"error": str(e)}, 403)
